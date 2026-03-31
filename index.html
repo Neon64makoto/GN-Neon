@@ -4,11 +4,9 @@
   <title>GN-Gassy</title>
   <meta charset="UTF-8">
 </head>
-
 <body>
 
 <h1>GN-Gassy</h1>
-
 <hr>
 
 <!-- Navigation -->
@@ -16,166 +14,169 @@
 <button onclick="load('calc')">Calculators</button>
 <button onclick="load('graph')">Graph</button>
 <button onclick="load('about')">About</button>
-
 <hr>
 
 <div id="content">Loading...</div>
 
 <script>
+// ------------- PAGES -------------
 const pages = {
-  home: "<h2>Home</h2><p>Welcome to GN-Gassy.</p>",
-  calc: "<h2>Calculators</h2> ...",  // everything in single-line strings OR proper backticks
-  graph: "<h2>Graph Calculator</h2> ...",
-  about: "<h2>About</h2><p>GN-Gassy is a simple injected tool site.</p>"
-};
-// -------- HOME --------
-home: `
-  <h2>Home</h2>
-  <p>Welcome to GN-Gassy.</p>
-`,
+  home: `<h2>Home</h2><p>Welcome to GN-Gassy.</p>`,
 
-// -------- CALCULATORS --------
-calc: `
-  <h2>Calculators</h2>
+  calc: `<h2>Calculators</h2>
+    <button onclick="showCalc('simple')">Simple Calculator</button>
+    <button onclick="showCalc('volume')">Volume Calculator</button>
+    <button onclick="showCalc('graph')">Graph Calculator</button>
+    <div id="calcContent"></div>
+  `,
 
-  <h3>Fraction Calculator</h3>
-  <input id="f1" placeholder="a/b">
-  <input id="f2" placeholder="c/d">
-  <button onclick="addFrac()">Add</button>
-  <p id="fout"></p>
+  graph: `
+    <h2>Graph Calculator</h2>
+    X Range: <input id="xmin" value="-10"> to <input id="xmax" value="10"><br>
+    Y Range: <input id="ymin" value="-10"> to <input id="ymax" value="10"><br><br>
+    y = <input id="eq1" placeholder="x*x"><br>
+    y = <input id="eq2" placeholder=""><br>
+    y = <input id="eq3" placeholder=""><br>
+    y = <input id="eq4" placeholder=""><br><br>
+    <button onclick="drawGraph()">Graph</button><br><br>
+    <canvas id="grid" width="400" height="400" style="border:1px solid black;"></canvas>
+  `,
 
-  <h3>Volume Calculator (Cube)</h3>
-  <input id="side" placeholder="side length">
-  <button onclick="calcVolume()">Calculate</button>
-  <p id="vout"></p>
-`,
-
-// -------- GRAPH --------
-graph: `
-  <h2>Graph Calculator</h2>
-
-  X Range: <input id="xmin" value="-10"> to <input id="xmax" value="10"><br>
-  Y Range: <input id="ymin" value="-10"> to <input id="ymax" value="10"><br><br>
-
-  y = <input id="eq1" placeholder="x*x"><br>
-  y = <input id="eq2" placeholder=""><br>
-  y = <input id="eq3" placeholder=""><br>
-  y = <input id="eq4" placeholder=""><br><br>
-
-  <button onclick="drawGraph()">Graph</button>
-
-  <br><br>
-  <canvas id="grid" width="400" height="400" style="border:1px solid black;"></canvas>
-`,
-
-// -------- ABOUT --------
-about: `
-  <h2>About</h2>
-  <p>GN-Gassy is a simple injected tool site with calculators and a graphing utility.</p>
-`
+  about: `<h2>About</h2>
+          <p>GN-Gassy is a simple injected tool site with calculators, volume calculators, and graphing.</p>`
 };
 
-// -------- PAGE LOADER --------
+// ------------- PAGE LOADER -------------
 function load(page) {
   document.getElementById("content").innerHTML = pages[page];
+  if(page==='graph') drawGraph(); // optional initial graph
 }
 
-// -------- FRACTION CALCULATOR --------
-function addFrac() {
-  let f1 = document.getElementById("f1").value.split("/");
-  let f2 = document.getElementById("f2").value.split("/");
-
-  let a = +f1[0], b = +f1[1];
-  let c = +f2[0], d = +f2[1];
-
-  let num = a*d + b*c;
-  let den = b*d;
-
-  document.getElementById("fout").innerText = num + "/" + den;
+// ------------- CALCULATORS HANDLER -------------
+function showCalc(type) {
+  const content = document.getElementById('calcContent');
+  if(type==='simple') {
+    content.innerHTML = `
+      <h3>Simple Calculator</h3>
+      <input id="simpleInput" placeholder="Enter expression, e.g. 2+2*3">
+      <button onclick="calcSimple()">Calculate</button>
+      <p id="simpleOut"></p>
+    `;
+  } else if(type==='volume') {
+    content.innerHTML = `
+      <h3>Volume Calculator</h3>
+      Cube: <input id="cubeSide" placeholder="Side length"><button onclick="volCube()">Calc</button><p id="cubeOut"></p>
+      Sphere: <input id="sphereR" placeholder="Radius"><button onclick="volSphere()">Calc</button><p id="sphereOut"></p>
+      Rectangle: L<input id="recL" placeholder="Length"> W<input id="recW" placeholder="Width"> H<input id="recH" placeholder="Height">
+      <button onclick="volRect()">Calc</button><p id="rectOut"></p>
+      Cylinder: R<input id="cylR" placeholder="Radius"> H<input id="cylH" placeholder="Height"><button onclick="volCyl()">Calc</button><p id="cylOut"></p>
+      Pyramid: B<input id="pyrB" placeholder="Base area"> H<input id="pyrH" placeholder="Height"><button onclick="volPyr()">Calc</button><p id="pyrOut"></p>
+    `;
+  } else if(type==='graph') {
+    load('graph'); // switch to graph page
+  }
 }
 
-// -------- VOLUME CALCULATOR --------
-function calcVolume() {
-  let s = +document.getElementById("side").value;
-  let v = s * s * s;
-  document.getElementById("vout").innerText = "Volume: " + v;
+// ------------- SIMPLE CALC -------------
+function calcSimple() {
+  const val = document.getElementById('simpleInput').value;
+  try {
+    document.getElementById('simpleOut').innerText = "Result: " + eval(val);
+  } catch(e) {
+    document.getElementById('simpleOut').innerText = "Invalid expression";
+  }
 }
 
-// -------- GRAPH CALCULATOR --------
+// ------------- VOLUME CALCS -------------
+function volCube() {
+  const s = parseFloat(document.getElementById('cubeSide').value);
+  document.getElementById('cubeOut').innerText = "Volume: " + (s*s*s);
+}
+function volSphere() {
+  const r = parseFloat(document.getElementById('sphereR').value);
+  document.getElementById('sphereOut').innerText = "Volume: " + ((4/3)*Math.PI*r*r*r);
+}
+function volRect() {
+  const l = parseFloat(document.getElementById('recL').value);
+  const w = parseFloat(document.getElementById('recW').value);
+  const h = parseFloat(document.getElementById('recH').value);
+  document.getElementById('rectOut').innerText = "Volume: " + (l*w*h);
+}
+function volCyl() {
+  const r = parseFloat(document.getElementById('cylR').value);
+  const h = parseFloat(document.getElementById('cylH').value);
+  document.getElementById('cylOut').innerText = "Volume: " + (Math.PI*r*r*h);
+}
+function volPyr() {
+  const b = parseFloat(document.getElementById('pyrB').value);
+  const h = parseFloat(document.getElementById('pyrH').value);
+  document.getElementById('pyrOut').innerText = "Volume: " + (b*h/3);
+}
+
+// ------------- GRAPH CALCULATOR -------------
 function drawGraph() {
   const canvas = document.getElementById("grid");
+  if(!canvas) return;
   const ctx = canvas.getContext("2d");
-
   const w = canvas.width;
   const h = canvas.height;
 
-  ctx.clearRect(0, 0, w, h);
+  ctx.clearRect(0,0,w,h);
 
-  // Get ranges
-  let xmin = parseFloat(document.getElementById("xmin").value);
-  let xmax = parseFloat(document.getElementById("xmax").value);
-  let ymin = parseFloat(document.getElementById("ymin").value);
-  let ymax = parseFloat(document.getElementById("ymax").value);
+  const xmin = parseFloat(document.getElementById("xmin").value);
+  const xmax = parseFloat(document.getElementById("xmax").value);
+  const ymin = parseFloat(document.getElementById("ymin").value);
+  const ymax = parseFloat(document.getElementById("ymax").value);
 
-  // Convert math coords → canvas coords
-  function toX(x) { return (x - xmin) / (xmax - xmin) * w; }
-  function toY(y) { return h - (y - ymin) / (ymax - ymin) * h; }
+  function toX(x){ return (x-xmin)/(xmax-xmin)*w; }
+  function toY(y){ return h-(y-ymin)/(ymax-ymin)*h; }
 
-  // Draw grid
+  // grid lines
   ctx.beginPath();
-  let stepX = (xmax - xmin)/10;
-  let stepY = (ymax - ymin)/10;
-
-  for (let x = xmin; x <= xmax; x += stepX) {
-    let px = toX(x);
-    ctx.moveTo(px, 0);
-    ctx.lineTo(px, h);
+  const stepX = (xmax-xmin)/10;
+  const stepY = (ymax-ymin)/10;
+  for(let x=xmin;x<=xmax;x+=stepX){
+    const px = toX(x);
+    ctx.moveTo(px,0);
+    ctx.lineTo(px,h);
   }
-  for (let y = ymin; y <= ymax; y += stepY) {
-    let py = toY(y);
-    ctx.moveTo(0, py);
-    ctx.lineTo(w, py);
+  for(let y=ymin;y<=ymax;y+=stepY){
+    const py = toY(y);
+    ctx.moveTo(0,py);
+    ctx.lineTo(w,py);
   }
-  ctx.strokeStyle = "#ccc";
+  ctx.strokeStyle="#ccc";
   ctx.stroke();
 
-  // Draw axes
+  // axes
   ctx.beginPath();
-  ctx.moveTo(toX(0), 0);
-  ctx.lineTo(toX(0), h);
-  ctx.moveTo(0, toY(0));
-  ctx.lineTo(w, toY(0));
-  ctx.strokeStyle = "#000";
+  ctx.moveTo(toX(0),0); ctx.lineTo(toX(0),h);
+  ctx.moveTo(0,toY(0)); ctx.lineTo(w,toY(0));
+  ctx.strokeStyle="#000";
   ctx.stroke();
 
-  // Plot equations
-  const eqs = [
-    document.getElementById("eq1").value,
-    document.getElementById("eq2").value,
-    document.getElementById("eq3").value,
-    document.getElementById("eq4").value
-  ];
-
-  eqs.forEach((eq, i) => {
-    if (!eq) return;
-
+  // plot equations
+  const eqs = [document.getElementById("eq1").value,
+               document.getElementById("eq2").value,
+               document.getElementById("eq3").value,
+               document.getElementById("eq4").value];
+  eqs.forEach((eq,i)=>{
+    if(!eq) return;
     ctx.beginPath();
-    let first = true;
-    for (let x = xmin; x <= xmax; x += (xmax-xmin)/200) {
+    let first=true;
+    for(let x=xmin;x<=xmax;x+=(xmax-xmin)/200){
       let y;
-      try { y = eval(eq.replaceAll("x","("+x+")")); } catch { continue; }
-      let px = toX(x);
-      let py = toY(y);
-      if (first) { ctx.moveTo(px, py); first = false; } 
-      else { ctx.lineTo(px, py); }
+      try{ y = eval(eq.replaceAll("x","("+x+")")); }catch{ continue; }
+      const px = toX(x);
+      const py = toY(y);
+      if(first){ ctx.moveTo(px,py); first=false; } else { ctx.lineTo(px,py); }
     }
-    // Different color per function
-    ctx.strokeStyle = ["red","blue","green","orange"][i%4];
+    ctx.strokeStyle=["red","blue","green","orange"][i%4];
     ctx.stroke();
   });
 }
 
-// Initial load
+// initial load
 load('home');
 </script>
 
