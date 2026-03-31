@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Injected Site</title>
+  <meta charset="UTF-8">
+</head>
+
+<body>
+
+<h1>My Injected Site</h1>
+
+<hr>
+
+<!-- Navigation -->
+<button onclick="load('home')">Home</button>
+<button onclick="load('tools')">Tools</button>
+<button onclick="load('about')">About</button>
+
+<hr>
+
+<!-- Content Area -->
+<div id="content">Loading...</div>
+
+<script>
+// "Pages" stored as strings (so no external files needed)
+const pages = {
+
+  home: `
+    <h2>Home</h2>
+    <p>Welcome to the site.</p>
+    <p>This is fully injected and running from about:blank.</p>
+  `,
+
+  tools: `
+    <h2>Tools</h2>
+    <button onclick="alert('Tool executed successfully')">Run Tool</button>
+    <br><br>
+    <button onclick="document.body.innerHTML += '<p>New element added</p>'">
+      Add Element
+    </button>
+  `,
+
+  about: `
+    <h2>About</h2>
+    <p>This site is:</p>
+    <ul>
+      <li>Single-file</li>
+      <li>No CSS</li>
+      <li>Fully fetchable</li>
+      <li>Injection-safe</li>
+    </ul>
+  `
+};
+
+// Page loader
+function load(page) {
+  document.getElementById("content").innerHTML = pages[page];
+}
+
+// Initial load
+load('home');
+</script>
+
+</body>
+</html>
