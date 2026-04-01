@@ -4,23 +4,36 @@
 <title>GN-Gassy</title>
 <meta charset="UTF-8">
 <style>
-  body { background:black; color:white; font-family:Arial,sans-serif; }
+  body { background:black; color:white; font-family:Arial,sans-serif; margin:0; padding:0; }
   input { margin:2px; }
   button { margin:2px; }
   #scratchFrame { width:80vw; height:70vh; border:none; }
+  /* Make the entire content scale with the window */
+  #content {
+    width: 100%;
+    height: calc(100vh - 150px);
+    box-sizing: border-box;
+    padding: 20px;
+  }
+  /* Make UI larger for responsiveness */
+  @media(max-width: 800px){
+    body { font-size: 1.2em; }
+  }
 </style>
 </head>
 <body>
 
-<h1>GN-Gassy</h1>
+<h1 style="text-align:center;">GN-Gassy</h1>
 
 <hr>
 
 <!-- Navigation -->
-<button onclick="load('home')">Home</button>
-<button onclick="load('calc')">Calculators</button>
-<button onclick="load('games')">Games</button>
-<button onclick="load('about')">About</button>
+<div style="text-align:center;">
+  <button onclick="load('home')">Home</button>
+  <button onclick="load('calc')">Calculators</button>
+  <button onclick="load('games')">Games</button>
+  <button onclick="load('about')">About</button>
+</div>
 <hr>
 
 <div id="content">Loading...</div>
@@ -39,7 +52,6 @@ const pages = {
     <img src="https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/sili2.jpg" width="200"><br><br>
     <img src="https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/sili3.jpg" width="200">
   `,
-
   calc: `
     <h2>Calculators</h2>
     <button onclick="showCalc('simple')">Simple Calculator</button>
@@ -47,29 +59,32 @@ const pages = {
     <button onclick="showCalc('graph')">Graph Calculator</button>
     <div id="calcContent"></div>
   `,
-
   games: `
     <h2>Scratch Games</h2>
     <div style="text-align:center;">
       <button onclick="prevGame()">◀</button>
       <button onclick="nextGame()">▶</button>
-      <button onclick="fullscreenGame()">⛶ Fullscreen</button>
+      <!-- Removed fullscreen button as per request -->
       <br><br>
       <iframe id="scratchFrame" src="" allowfullscreen></iframe>
       <h3 id="gameTitle"></h3>
     </div>
   `,
-
   about: `
     <h2>About</h2>
     <p>GN-Gassy is a simple injected tool site with calculators, volume calculators, and games.</p>
   `
 };
 
-// ------------- PAGE LOADER -------------
+// Helper to initialize the page content
 function load(page){
   document.getElementById("content").innerHTML = pages[page];
   if(page==='graph') drawGraph(); // optional initial graph
+  if(page==='games') {
+    // Load the first game automatically when entering games section
+    currentIndex = 0;
+    updateGame();
+  }
 }
 
 // ------------- CALCULATOR HANDLER -------------
@@ -115,11 +130,23 @@ function calcSimple(){
 }
 
 // ------------- VOLUME CALCS -------------
-function volCube(){ document.getElementById('cubeOut').innerText = "Volume: "+(parseFloat(cubeSide.value)**3); }
-function volSphere(){ document.getElementById('sphereOut').innerText = "Volume: "+((4/3)*Math.PI*parseFloat(sphereR.value)**3); }
-function volRect(){ document.getElementById('rectOut').innerText = "Volume: "+(parseFloat(recL.value)*parseFloat(recW.value)*parseFloat(recH.value)); }
-function volCyl(){ document.getElementById('cylOut').innerText = "Volume: "+(Math.PI*parseFloat(cylR.value)**2*parseFloat(cylH.value)); }
-function volPyr(){ document.getElementById('pyrOut').innerText = "Volume: "+(parseFloat(pyrB.value)*parseFloat(pyrH.value)/3); }
+function volCube(){ 
+  const side = document.getElementById('cubeSide');
+  document.getElementById('cubeOut').innerText = "Volume: "+(parseFloat(side.value)**3); 
+}
+function volSphere(){ 
+  const r = document.getElementById('sphereR');
+  document.getElementById('sphereOut').innerText = "Volume: "+((4/3)*Math.PI*Math.pow(parseFloat(r.value),3)); 
+}
+function volRect(){ 
+  document.getElementById('rectOut').innerText = "Volume: "+(parseFloat(document.getElementById('recL').value)*parseFloat(document.getElementById('recW').value)*parseFloat(document.getElementById('recH').value)); 
+}
+function volCyl(){ 
+  document.getElementById('cylOut').innerText = "Volume: "+(Math.PI*Math.pow(parseFloat(document.getElementById('cylR').value),2)*parseFloat(document.getElementById('cylH').value)); 
+}
+function volPyr(){ 
+  document.getElementById('pyrOut').innerText = "Volume: "+(parseFloat(document.getElementById('pyrB').value)*parseFloat(document.getElementById('pyrH').value)/3); 
+}
 
 // ------------- GAMES -------------
 const games = [
@@ -143,24 +170,84 @@ const titles = [
 let currentIndex = 0;
 
 function updateGame(){
-  const f=document.getElementById("scratchFrame");
+  const f = document.getElementById("scratchFrame");
   if(!f) return;
-  f.src=games[currentIndex];
-  gameTitle.innerText=titles[currentIndex];
+  f.src = games[currentIndex];
+  document.getElementById("gameTitle").innerText = titles[currentIndex];
 }
 
-function nextGame(){ currentIndex=(currentIndex+1)%games.length; updateGame(); }
-function prevGame(){ currentIndex=(currentIndex-1+games.length)%games.length; updateGame(); }
-function fullscreenGame(){
-  const f=document.getElementById("scratchFrame");
-  if(f.requestFullscreen) f.requestFullscreen();
-  else if(f.webkitRequestFullscreen) f.webkitRequestFullscreen();
-  else if(f.msRequestFullscreen) f.msRequestFullscreen();
+function nextGame(){ currentIndex = (currentIndex+1) % games.length; updateGame(); }
+function prevGame(){ currentIndex = (currentIndex-1+games.length) % games.length; }
+
+function drawGraph() {
+  const canvas = document.getElementById('grid');
+  if (!canvas) return;
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  
+  // Get ranges
+  const xmin = parseFloat(document.getElementById('xmin').value);
+  const xmax = parseFloat(document.getElementById('xmax').value);
+  const ymin = parseFloat(document.getElementById('ymin').value);
+  const ymax = parseFloat(document.getElementById('ymax').value);
+  
+  // Draw axes
+  ctx.strokeStyle = 'white';
+  ctx.lineWidth = 1;
+  
+  // X axis
+  const xZero = (-xmin) / (xmax - xmin) * canvas.width;
+  ctx.beginPath();
+  ctx.moveTo(xZero, 0);
+  ctx.lineTo(xZero, canvas.height);
+  ctx.stroke();
+  
+  // Y axis
+  const yZero = (ymax) / (ymax - ymin) * canvas.height;
+  ctx.beginPath();
+  ctx.moveTo(0, yZero);
+  ctx.lineTo(canvas.width, yZero);
+  ctx.stroke();
+  
+  // Plot functions
+  const functions = [
+    document.getElementById('eq1').value,
+    document.getElementById('eq2').value,
+    document.getElementById('eq3').value,
+    document.getElementById('eq4').value
+  ];
+
+  functions.forEach((expr, index) => {
+    if (!expr.trim()) return;
+    ctx.beginPath();
+    ctx.strokeStyle = ['red', 'yellow', 'cyan', 'magenta'][index];
+    let firstPoint = true;
+    for (let px = 0; px <= canvas.width; px++) {
+      const x = xmin + (px / canvas.width) * (xmax - xmin);
+      let y;
+      try {
+        y = eval(expr.replace(/x/g, `(${x})`));
+      } catch {
+        continue;
+      }
+      const py = (ymax - y) / (ymax - ymin) * canvas.height;
+      if (py >= 0 && py <= canvas.height) {
+        if (firstPoint) {
+          ctx.moveTo(px, py);
+          firstPoint = false;
+        } else {
+          ctx.lineTo(px, py);
+        }
+      }
+    }
+    ctx.stroke();
+  });
 }
 
-// ------------- INIT -------------
+// Initialize first game on load
 load("home");
 updateGame();
+
 </script>
 
 </body>
