@@ -15,11 +15,9 @@
     box-sizing: border-box;
     padding: 20px;
   }
-  /* Responsive font size for smaller screens */
   @media(max-width: 800px){
     body { font-size: 1.2em; }
   }
-  /* Styling for version counter */
   #versionCounter {
     font-size: 14px;
     font-family: 'Courier New', monospace;
@@ -27,12 +25,15 @@
     padding: 4px 8px;
     border-radius: 8px;
   }
-  /* Style for the axes labels in the graph */
   #axesLabels {
     position: absolute;
     font-size: 0.9em;
     color: #ccc;
     pointer-events: none;
+  }
+  #cursorCoords {
+    position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.5);
+    padding: 4px; font-size: 0.8em; border-radius: 4px; color: #fff;
   }
 </style>
 </head>
@@ -42,7 +43,6 @@
 
 <hr>
 
-<!-- Navigation -->
 <div style="text-align:center;">
   <button onclick="load('home')">Home</button>
   <button onclick="showCalc('simple')">Simple Calculator</button>
@@ -55,11 +55,10 @@
 
 <div id="content">Loading...</div>
 
-<!-- Version counter -->
-<div id="versionCounter" style="position:fixed; bottom:10px; right:20px; color:gray;">v0.15</div>
+<div id="versionCounter" style="position:fixed; bottom:10px; right:20px; color:gray;">v0.17</div>
 
 <script>
-// ------------- PAGES -------------
+// Pages content
 const pages = {
   home: `
     <h2>Home</h2>
@@ -90,12 +89,11 @@ const pages = {
   `
 };
 
-// Load page and initialize
 function load(page){
   document.getElementById("content").innerHTML = pages[page];
   if(page==='graph') {
-    drawGraph();
-    addGraphEventListeners();
+    setTimeout(drawGraph, 0); // Ensure DOM is ready
+    setTimeout(addGraphListeners, 0);
   }
   if(page==='games') {
     currentIndex = 0;
@@ -103,7 +101,7 @@ function load(page){
   }
 }
 
-// ------------- CALCULATOR HANDLER -------------
+// Calculator functions
 function showCalc(type){
   const c = document.getElementById("calcContent");
   if(type==="simple"){
@@ -142,20 +140,20 @@ function showCalc(type){
       <div style="position: relative;">
         <canvas id="grid" width="400" height="400" style="border:1px solid white; display:block; margin:auto; cursor:crosshair;"></canvas>
         <div id="axesLabels"></div>
-        <div id="cursorCoords" style="position:absolute; bottom:5px; left:5px; background:rgba(0,0,0,0.5); padding:4px; font-size:0.8em; border-radius:4px;">x:0 y:0</div>
+        <div id="cursorCoords">x:0 y:0</div>
       </div>
     `;
   }
 }
 
-// ------------- SIMPLE CALC -------------
+// Simple calculator
 function calcSimple(){
   const val = document.getElementById('simpleInput').value;
   try { document.getElementById('simpleOut').innerText = "Result: "+eval(val); }
   catch(e){ document.getElementById('simpleOut').innerText = "Invalid expression"; }
 }
 
-// ------------- VOLUME CALCS -------------
+// Volume functions
 function volCube(){ 
   const side = document.getElementById('cubeSide');
   const val = parseFloat(side.value);
@@ -198,7 +196,7 @@ function volPyr(){
     document.getElementById('pyrOut').innerText = "Invalid input";
 }
 
-// ------------- GAMES -------------
+// Games array
 const games = [
   "https://turbowarp.org/1143765424/embed?addons=pause&fps=60",
   "https://turbowarp.org/1075310827/embed?addons=pause&fps=60",
@@ -229,14 +227,15 @@ function updateGame(){
 function nextGame(){ currentIndex = (currentIndex+1) % games.length; updateGame(); }
 function prevGame(){ currentIndex = (currentIndex-1+games.length) % games.length; }
 
-// ------------- GRAPH DRAWING -------------
+// Draw graph
 function drawGraph() {
   const canvas = document.getElementById('grid');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
+  // Reset axes labels
+  document.getElementById('axesLabels').innerHTML = '';
 
-  // Get ranges
   const xmin = parseFloat(document.getElementById('xmin').value);
   const xmax = parseFloat(document.getElementById('xmax').value);
   const ymin = parseFloat(document.getElementById('ymin').value);
@@ -246,37 +245,37 @@ function drawGraph() {
   ctx.strokeStyle = 'white';
   ctx.lineWidth = 2;
 
-  // Draw y-axis (x=0)
+  // Draw y=0 line
   const zeroX = (0 - xmin) / (xmax - xmin) * canvas.width;
   ctx.beginPath();
   ctx.moveTo(zeroX, 0);
   ctx.lineTo(zeroX, canvas.height);
   ctx.stroke();
 
-  // Draw x-axis (y=0)
+  // Draw x=0 line
   const zeroY = (ymax - 0) / (ymax - ymin) * canvas.height;
   ctx.beginPath();
   ctx.moveTo(0, zeroY);
   ctx.lineTo(canvas.width, zeroY);
   ctx.stroke();
 
-  // Draw grid lines
-  ctx.lineWidth = 1;
+  ctx.lineWidth = 1; // reset for grid lines
+
+  // Vertical grid lines
   const gridXCount = 10;
   for(let i=0; i<=gridXCount; i++){
-    const x = xmin + i*(xmax - xmin)/gridXCount;
-    const px = (x - xmin) / (xmax - xmin) * canvas.width;
+    const xVal = xmin + i*(xmax - xmin)/gridXCount;
+    const px = (xVal - xmin) / (xmax - xmin) * canvas.width;
     ctx.beginPath();
     ctx.moveTo(px, 0);
     ctx.lineTo(px, canvas.height);
     ctx.stroke();
-
-    // Add labels
-    if(i===0 || i===gridXCount || (x >= xmin && x <= xmax)){
-      document.getElementById('axesLabels').innerHTML += `<div style="position:absolute; left:${px}px; bottom:0; transform:translateX(-50%) translateY(10px); font-size:0.8em; color:#ccc;">${x.toFixed(1)}</div>`;
+    // labels
+    if(i===0 || i===gridXCount || (xVal >= xmin && xVal <= xmax)){
+      document.getElementById('axesLabels').innerHTML += `<div style="position:absolute; left:${px}px; bottom:0; transform:translateX(-50%) translateY(10px); font-size:0.8em; color:#ccc;">${xVal.toFixed(1)}</div>`;
     }
   }
-
+  // Horizontal grid lines
   const gridYCount = 10;
   for(let i=0; i<=gridYCount; i++){
     const yVal = ymin + i*(ymax - ymin)/gridYCount;
@@ -285,39 +284,39 @@ function drawGraph() {
     ctx.moveTo(0, py);
     ctx.lineTo(canvas.width, py);
     ctx.stroke();
-
-    // Add labels
+    // labels
     if(i===0 || i===gridYCount || (yVal >= ymin && yVal <= ymax)){
       document.getElementById('axesLabels').innerHTML += `<div style="position:absolute; left:0; bottom:${py}px; transform:translateY(0); font-size:0.8em; color:#ccc;">${yVal.toFixed(1)}</div>`;
     }
   }
 
   // Plot functions
-  const expressions = [
+  const exprs = [
     document.getElementById('eq1').value,
     document.getElementById('eq2').value,
     document.getElementById('eq3').value,
     document.getElementById('eq4').value
   ];
 
-  expressions.forEach((expr, index) => {
-    if (!expr.trim()) return;
+  const colors = ['red','yellow','cyan','magenta'];
+
+  exprs.forEach((expr, index) => {
+    if(!expr.trim()) return;
     ctx.beginPath();
-    ctx.strokeStyle = ['red', 'yellow', 'cyan', 'magenta'][index];
-    let firstPoint = true;
-    for (let px=0; px<=canvas.width; px++){
-      const x = xmin + (px / canvas.width) * (xmax - xmin);
+    ctx.strokeStyle = colors[index];
+    let first = true;
+    for(let px=0; px<=canvas.width; px++){
+      const xVal = xmin + (px / canvas.width)*(xmax - xmin);
       let y;
       try {
-        y=eval(expr.replace(/x/g, `(${x})`));
-      } catch {
-        continue;
-      }
+        y=eval(expr.replace(/x/g, `(${xVal})`));
+      } catch(e){ continue; }
+      if(typeof y !== 'number' || isNaN(y)) continue;
       const py = (ymax - y) / (ymax - ymin) * canvas.height;
-      if (py >= 0 && py <= canvas.height){
-        if (firstPoint){
+      if(py>=0 && py<=canvas.height){
+        if(first){
           ctx.moveTo(px, py);
-          firstPoint = false;
+          first=false;
         } else {
           ctx.lineTo(px, py);
         }
@@ -327,41 +326,67 @@ function drawGraph() {
   });
 }
 
-// Helper to evaluate expressions safely
-function safeEval(expr, xVal) {
-  try {
-    return eval(expr.replace(/x/g, `(${xVal})`));
-  } catch {
-    return NaN;
-  }
-}
-
-// Add event listeners for graph interaction
-function addGraphEventListeners() {
+// Mouse move handler to show (x,y)
+function addGraphListeners() {
   const canvas = document.getElementById('grid');
-  if (!canvas) return;
-  const rect = canvas.getBoundingClientRect();
+  const coordsDiv = document.getElementById('cursorCoords');
+  const labelsDiv = document.getElementById('axesLabels');
 
-  // Update cursor position display
+  if(!canvas) return;
+
   canvas.addEventListener('mousemove', (e) => {
-    const x = e.clientX - rect.left;
-    const y = e.clientY - rect.top;
+    const rect = canvas.getBoundingClientRect();
+    const xPix = e.clientX - rect.left;
+    const yPix = e.clientY - rect.top;
+
     const xmin = parseFloat(document.getElementById('xmin').value);
     const xmax = parseFloat(document.getElementById('xmax').value);
     const ymin = parseFloat(document.getElementById('ymin').value);
     const ymax = parseFloat(document.getElementById('ymax').value);
-    const ctxX = xmin + (x / canvas.width) * (xmax - xmin);
-    const ctxY = ymax - (y / canvas.height) * (ymax - ymin);
-    document.getElementById('cursorCoords').innerText = `x: ${ctxX.toFixed(2)} y: ${ctxY.toFixed(2)}`;
+
+    const xVal = xmin + (xPix / rect.width)*(xmax - xmin);
+    const yVal = ymax - (yPix / rect.height)*(ymax - ymin);
+
+    coordsDiv.innerText = `x: ${xVal.toFixed(2)} y: ${yVal.toFixed(2)}`;
   });
 
-  // Handle clicks for displaying (x,y)
-  canvas.addEventListener('click', () => {
-    // Optional: could add features here
-  });
+  // Optional: click to show (x,y)
+  // canvas.addEventListener('click', (e) => { ... });
 }
 
-// ------------- PAGE LOAD -------------
+// On Enter key press
+document.addEventListener('keydown', (e) => {
+  if(e.key==='Enter'){
+    // If graph page
+    if(document.getElementById('content').innerHTML.includes('canvas')){
+      drawGraph();
+    } else if(document.querySelector('#calcContent').innerHTML.includes('Simple Calculator')){
+      calcSimple();
+    } else if(document.querySelector('#calcContent').innerHTML.includes('Volume Calculator')){
+      // Move to next input in volume
+      handleVolumeInputNavigation();
+    }
+  }
+});
+
+// Function to handle volume input navigation
+function handleVolumeInputNavigation() {
+  const inputs = ['cubeSide','sphereR','recL','recW','recH','cylR','cylH','pyrB','pyrH'];
+  for(let i=0; i<inputs.length; i++){
+    const el = document.getElementById(inputs[i]);
+    if(document.activeElement===el){
+      // move to next, or stay if last
+      if(i===inputs.length-1){
+        el.blur();
+      } else {
+        document.getElementById(inputs[i+1]).focus();
+      }
+      return;
+    }
+  }
+}
+
+// Initialize first page
 load("home");
 </script>
 </body>
