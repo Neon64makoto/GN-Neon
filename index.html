@@ -31,10 +31,6 @@
     color: #ccc;
     pointer-events: none;
   }
-  #cursorCoords {
-    position: absolute; bottom: 5px; left: 5px; background: rgba(0,0,0,0.5);
-    padding: 4px; font-size: 0.8em; border-radius: 4px; color: #fff;
-  }
 </style>
 </head>
 <body>
@@ -43,6 +39,7 @@
 
 <hr>
 
+<!-- Navigation -->
 <div style="text-align:center;">
   <button onclick="load('home')">Home</button>
   <button onclick="showCalc('simple')">Simple Calculator</button>
@@ -55,10 +52,11 @@
 
 <div id="content">Loading...</div>
 
-<div id="versionCounter" style="position:fixed; bottom:10px; right:20px; color:gray;">v0.17</div>
+<!-- Version counter -->
+<div id="versionCounter" style="position:fixed; bottom:10px; right:20px; color:gray;">v0.13</div>
 
 <script>
-// Pages content
+// ------------- PAGES -------------
 const pages = {
   home: `
     <h2>Home</h2>
@@ -89,10 +87,11 @@ const pages = {
   `
 };
 
+// Load page and initialize
 function load(page){
   document.getElementById("content").innerHTML = pages[page];
   if(page==='graph') {
-    setTimeout(drawGraph, 0); // Ensure DOM is ready
+    setTimeout(drawGraph, 0);
     setTimeout(addGraphListeners, 0);
   }
   if(page==='games') {
@@ -101,7 +100,7 @@ function load(page){
   }
 }
 
-// Calculator functions
+// ------------- CALCULATOR HANDLER -------------
 function showCalc(type){
   const c = document.getElementById("calcContent");
   if(type==="simple"){
@@ -140,20 +139,20 @@ function showCalc(type){
       <div style="position: relative;">
         <canvas id="grid" width="400" height="400" style="border:1px solid white; display:block; margin:auto; cursor:crosshair;"></canvas>
         <div id="axesLabels"></div>
-        <div id="cursorCoords">x:0 y:0</div>
+        <div id="cursorCoords" style="position:absolute; bottom:5px; left:5px; background:rgba(0,0,0,0.5); padding:4px; font-size:0.8em; border-radius:4px; color:#fff;">x:0 y:0</div>
       </div>
     `;
   }
 }
 
-// Simple calculator
+// ------------- SIMPLE CALC -------------
 function calcSimple(){
   const val = document.getElementById('simpleInput').value;
   try { document.getElementById('simpleOut').innerText = "Result: "+eval(val); }
   catch(e){ document.getElementById('simpleOut').innerText = "Invalid expression"; }
 }
 
-// Volume functions
+// ------------- VOLUME CALCS -------------
 function volCube(){ 
   const side = document.getElementById('cubeSide');
   const val = parseFloat(side.value);
@@ -196,7 +195,7 @@ function volPyr(){
     document.getElementById('pyrOut').innerText = "Invalid input";
 }
 
-// Games array
+// ------------- GAMES -------------
 const games = [
   "https://turbowarp.org/1143765424/embed?addons=pause&fps=60",
   "https://turbowarp.org/1075310827/embed?addons=pause&fps=60",
@@ -227,13 +226,12 @@ function updateGame(){
 function nextGame(){ currentIndex = (currentIndex+1) % games.length; updateGame(); }
 function prevGame(){ currentIndex = (currentIndex-1+games.length) % games.length; }
 
-// Draw graph
+// ------------ GRAPH FUNCTIONS ------------
 function drawGraph() {
   const canvas = document.getElementById('grid');
   if (!canvas) return;
   const ctx = canvas.getContext('2d');
   ctx.clearRect(0, 0, canvas.width, canvas.height);
-  // Reset axes labels
   document.getElementById('axesLabels').innerHTML = '';
 
   const xmin = parseFloat(document.getElementById('xmin').value);
@@ -241,7 +239,7 @@ function drawGraph() {
   const ymin = parseFloat(document.getElementById('ymin').value);
   const ymax = parseFloat(document.getElementById('ymax').value);
 
-  // Draw axes lines (bold)
+  // Draw axes lines (extra bold)
   ctx.strokeStyle = 'white';
   ctx.lineWidth = 2;
 
@@ -259,31 +257,35 @@ function drawGraph() {
   ctx.lineTo(canvas.width, zeroY);
   ctx.stroke();
 
-  ctx.lineWidth = 1; // reset for grid lines
+  // Reset line width for grid
+  ctx.lineWidth = 1;
 
   // Vertical grid lines
   const gridXCount = 10;
-  for(let i=0; i<=gridXCount; i++){
+  for (let i=0; i<=gridXCount; i++){
     const xVal = xmin + i*(xmax - xmin)/gridXCount;
     const px = (xVal - xmin) / (xmax - xmin) * canvas.width;
     ctx.beginPath();
     ctx.moveTo(px, 0);
     ctx.lineTo(px, canvas.height);
     ctx.stroke();
+
     // labels
     if(i===0 || i===gridXCount || (xVal >= xmin && xVal <= xmax)){
       document.getElementById('axesLabels').innerHTML += `<div style="position:absolute; left:${px}px; bottom:0; transform:translateX(-50%) translateY(10px); font-size:0.8em; color:#ccc;">${xVal.toFixed(1)}</div>`;
     }
   }
+
   // Horizontal grid lines
   const gridYCount = 10;
-  for(let i=0; i<=gridYCount; i++){
+  for (let i=0; i<=gridYCount; i++){
     const yVal = ymin + i*(ymax - ymin)/gridYCount;
     const py = (ymax - yVal) / (ymax - ymin) * canvas.height;
     ctx.beginPath();
     ctx.moveTo(0, py);
     ctx.lineTo(canvas.width, py);
     ctx.stroke();
+
     // labels
     if(i===0 || i===gridYCount || (yVal >= ymin && yVal <= ymax)){
       document.getElementById('axesLabels').innerHTML += `<div style="position:absolute; left:0; bottom:${py}px; transform:translateY(0); font-size:0.8em; color:#ccc;">${yVal.toFixed(1)}</div>`;
@@ -291,7 +293,7 @@ function drawGraph() {
   }
 
   // Plot functions
-  const exprs = [
+  const expressions = [
     document.getElementById('eq1').value,
     document.getElementById('eq2').value,
     document.getElementById('eq3').value,
@@ -299,21 +301,20 @@ function drawGraph() {
   ];
 
   const colors = ['red','yellow','cyan','magenta'];
-
-  exprs.forEach((expr, index) => {
-    if(!expr.trim()) return;
+  expressions.forEach((expr, index) => {
+    if (!expr.trim()) return;
     ctx.beginPath();
     ctx.strokeStyle = colors[index];
     let first = true;
-    for(let px=0; px<=canvas.width; px++){
+    for (let px=0; px<=canvas.width; px++){
       const xVal = xmin + (px / canvas.width)*(xmax - xmin);
       let y;
       try {
         y=eval(expr.replace(/x/g, `(${xVal})`));
       } catch(e){ continue; }
-      if(typeof y !== 'number' || isNaN(y)) continue;
+      if (typeof y !== 'number' || isNaN(y)) continue;
       const py = (ymax - y) / (ymax - ymin) * canvas.height;
-      if(py>=0 && py<=canvas.height){
+      if (py>=0 && py<=canvas.height){
         if(first){
           ctx.moveTo(px, py);
           first=false;
@@ -326,14 +327,15 @@ function drawGraph() {
   });
 }
 
-// Mouse move handler to show (x,y)
+// Add event listeners for graph interaction
 function addGraphListeners() {
   const canvas = document.getElementById('grid');
   const coordsDiv = document.getElementById('cursorCoords');
   const labelsDiv = document.getElementById('axesLabels');
 
-  if(!canvas) return;
+  if (!canvas) return;
 
+  // Mouse move to show (x,y)
   canvas.addEventListener('mousemove', (e) => {
     const rect = canvas.getBoundingClientRect();
     const xPix = e.clientX - rect.left;
@@ -350,32 +352,26 @@ function addGraphListeners() {
     coordsDiv.innerText = `x: ${xVal.toFixed(2)} y: ${yVal.toFixed(2)}`;
   });
 
-  // Optional: click to show (x,y)
-  // canvas.addEventListener('click', (e) => { ... });
+  // Press Enter to update graph or move to next input
+  document.addEventListener('keydown', (e) => {
+    if(e.key==='Enter'){
+      if(document.getElementById('content').innerHTML.includes('canvas')){
+        drawGraph();
+      } else if(document.querySelector('#calcContent').innerHTML.includes('Simple Calculator')){
+        calcSimple();
+      } else if(document.querySelector('#calcContent').innerHTML.includes('Volume Calculator')){
+        handleVolumeNext();
+      }
+    }
+  });
 }
 
-// On Enter key press
-document.addEventListener('keydown', (e) => {
-  if(e.key==='Enter'){
-    // If graph page
-    if(document.getElementById('content').innerHTML.includes('canvas')){
-      drawGraph();
-    } else if(document.querySelector('#calcContent').innerHTML.includes('Simple Calculator')){
-      calcSimple();
-    } else if(document.querySelector('#calcContent').innerHTML.includes('Volume Calculator')){
-      // Move to next input in volume
-      handleVolumeInputNavigation();
-    }
-  }
-});
-
-// Function to handle volume input navigation
-function handleVolumeInputNavigation() {
+// Handle focus movement for volume inputs
+function handleVolumeNext() {
   const inputs = ['cubeSide','sphereR','recL','recW','recH','cylR','cylH','pyrB','pyrH'];
   for(let i=0; i<inputs.length; i++){
     const el = document.getElementById(inputs[i]);
     if(document.activeElement===el){
-      // move to next, or stay if last
       if(i===inputs.length-1){
         el.blur();
       } else {
@@ -386,7 +382,7 @@ function handleVolumeInputNavigation() {
   }
 }
 
-// Initialize first page
+// Initialize
 load("home");
 </script>
 </body>
