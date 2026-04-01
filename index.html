@@ -1,258 +1,143 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <title>GN-Gassy</title>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GN-Gassy</title>
+<meta charset="UTF-8">
+<style>
+  body { background:black; color:white; font-family:Arial,sans-serif; }
+  input { margin:2px; }
+  button { margin:2px; }
+  #scratchFrame { width:80vw; height:70vh; border:none; }
+</style>
 </head>
+<body>
 
-<body style="
-  background:black;
-  color:white;
-  margin:0;
-  height:100vh;
-  display:flex;
-  flex-direction:column;
-  font-family:Arial;
-">
+<h1>GN-Gassy</h1>
 
-<h1 style="margin:10px;">GN-Gassy</h1>
+<hr>
 
-<div style="margin:10px;">
-  <button onclick="load('home')">Home</button>
-  <button onclick="load('calc')">Calculators</button>
-  <button onclick="load('games')">Games</button>
-  <button onclick="load('about')">About</button>
+<!-- Navigation -->
+<button onclick="load('home')">Home</button>
+<button onclick="load('calc')">Calculators</button>
+<button onclick="load('games')">Games</button>
+<button onclick="load('about')">About</button>
+<hr>
+
+<div id="content">Loading...</div>
+
+<!-- Version counter -->
+<div id="versionCounter" style="position:fixed; bottom:5px; right:10px; color:gray; font-size:12px;">
+  v0.13 <!-- IMPORTANT: Increment this decimal every time the code is changed -->
 </div>
 
-<div id="content" style="
-  flex:1;
-  display:flex;
-  flex-direction:column;
-  padding:10px;
-  gap:10px;
-">Loading...</div>
-
 <script>
-// -------- PAGES --------
+// ------------- PAGES -------------
 const pages = {
+  home: `
+    <h2>Home</h2>
+    <p>Welcome to GN-Gassy.</p>
+    <img src="https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/sili2.jpg" width="200"><br><br>
+    <img src="https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/sili3.jpg" width="200">
+  `,
 
-home: `
-  <h2>Home</h2>
-  <p>Welcome to GN-Gassy.</p>
-  <img src="https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/sili2.jpg" style="width:30%;border:1px solid white;">
-  <br><br>
-  <img src="https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/sili3.jpg" style="width:30%;border:1px solid white;">
-`,
+  calc: `
+    <h2>Calculators</h2>
+    <button onclick="showCalc('simple')">Simple Calculator</button>
+    <button onclick="showCalc('volume')">Volume Calculator</button>
+    <button onclick="showCalc('graph')">Graph Calculator</button>
+    <div id="calcContent"></div>
+  `,
 
-calc: `
-  <h2>Calculators</h2>
-  <button onclick="showCalc('simple')">Simple</button>
-  <button onclick="showCalc('volume')">Volumes</button>
-  <button onclick="showCalc('graph')">Graph</button>
-  <div id="calcContent" style="margin-top:10px;"></div>
-`,
-
-games: `
-  <h2>Games</h2>
-  <div style="display:flex;flex:1;gap:10px;height:80vh;">
-
-    <div style="width:20%;border:1px solid white;padding:5px;">
-      <h3>Controls</h3>
-      <p>Under Construction</p>
-    </div>
-
-    <div style="width:60%;text-align:center;border:1px solid white;padding:5px;">
+  games: `
+    <h2>Scratch Games</h2>
+    <div style="text-align:center;">
       <button onclick="prevGame()">◀</button>
-      <button onclick="fullscreenGame()">Fullscreen</button>
-
-      <div id="gameContainer" style="width:100%;height:60vh;margin-top:10px;border:1px solid white;">
-        <iframe id="scratchFrame" allow="fullscreen" style="width:100%;height:100%;"></iframe>
-      </div>
-
       <button onclick="nextGame()">▶</button>
+      <button onclick="fullscreenGame()">⛶ Fullscreen</button>
+      <br><br>
+      <iframe id="scratchFrame" src="" allowfullscreen></iframe>
       <h3 id="gameTitle"></h3>
     </div>
+  `,
 
-    <div style="width:20%;border:1px solid white;padding:5px;">
-      <h3>Credits</h3>
-      <p>Under Construction</p>
-    </div>
-
-  </div>
-`,
-
-about: `<h2>About</h2><p>GN-Gassy tools site.</p>`
+  about: `
+    <h2>About</h2>
+    <p>GN-Gassy is a simple injected tool site with calculators, volume calculators, and games.</p>
+  `
 };
 
-// -------- LOAD --------
+// ------------- PAGE LOADER -------------
 function load(page){
   document.getElementById("content").innerHTML = pages[page];
+  if(page==='graph') drawGraph(); // optional initial graph
 }
 
-// -------- CALCS --------
+// ------------- CALCULATOR HANDLER -------------
 function showCalc(type){
   const c = document.getElementById("calcContent");
-
   if(type==="simple"){
     c.innerHTML = `
-      <input id="simpleInput">
+      <h3>Simple Calculator</h3>
+      <input id="simpleInput" placeholder="2+2*3">
       <button onclick="calcSimple()">Calc</button>
       <p id="simpleOut"></p>
     `;
-  }
-
-  if(type==="graph"){
+  } else if(type==='volume'){
     c.innerHTML = `
-      <div style="display:flex;gap:10px;height:70vh;">
-
-        <!-- LEFT SIDE -->
-        <div style="width:30%;border:1px solid white;padding:5px;">
-          X <input id="xmin" value="-10"> to <input id="xmax" value="10"><br>
-          Y <input id="ymin" value="-10"> to <input id="ymax" value="10"><br><br>
-
-          y=<input id="eq1"><span id="out1"></span><br>
-          y=<input id="eq2"><span id="out2"></span><br>
-          y=<input id="eq3"><span id="out3"></span><br>
-          y=<input id="eq4"><span id="out4"></span><br><br>
-
-          <button onclick="drawGraph()">Graph</button>
-        </div>
-
-        <!-- RIGHT SIDE -->
-        <div style="flex:1;border:1px solid white;">
-          <canvas id="grid" style="width:100%;height:100%;"></canvas>
-        </div>
-
-      </div>
+      <h3>Volume Calculator</h3>
+      Cube: <input id="cubeSide" placeholder="Side"> <button onclick="volCube()">Calc</button><p id="cubeOut"></p>
+      Sphere: <input id="sphereR" placeholder="Radius"> <button onclick="volSphere()">Calc</button><p id="sphereOut"></p>
+      Rectangle: Length<input id="recL" placeholder="L"> Width<input id="recW" placeholder="W"> Height<input id="recH" placeholder="H">
+      <button onclick="volRect()">Calc</button><p id="rectOut"></p>
+      Cylinder: Radius<input id="cylR" placeholder="R"> Height<input id="cylH" placeholder="H"><button onclick="volCyl()">Calc</button><p id="cylOut"></p>
+      Pyramid: Base<input id="pyrB" placeholder="Base area"> Height<input id="pyrH" placeholder="H"><button onclick="volPyr()">Calc</button><p id="pyrOut"></p>
+    `;
+  } else if(type==='graph'){
+    c.innerHTML = `
+      <h3>Graph Calculator</h3>
+      X Range: <input id="xmin" value="-10"> to <input id="xmax" value="10"><br>
+      Y Range: <input id="ymin" value="-10"> to <input id="ymax" value="10"><br><br>
+      y=<input id="eq1" placeholder="x*x"><br>
+      y=<input id="eq2" placeholder=""><br>
+      y=<input id="eq3" placeholder=""><br>
+      y=<input id="eq4" placeholder=""><br><br>
+      <button onclick="drawGraph()">Graph</button><br><br>
+      <canvas id="grid" width="400" height="400" style="border:1px solid white;"></canvas>
     `;
   }
 }
 
-// -------- SIMPLE --------
+// ------------- SIMPLE CALC -------------
 function calcSimple(){
-  try{
-    let f = Function("return " + simpleInput.value);
-    simpleOut.innerText = f();
-  }catch{
-    simpleOut.innerText = "Error";
-  }
+  const val = document.getElementById('simpleInput').value;
+  try { document.getElementById('simpleOut').innerText = "Result: "+eval(val); }
+  catch(e){ document.getElementById('simpleOut').innerText = "Invalid expression"; }
 }
 
-// -------- PARSER --------
-function parseEq(eq){
-  eq = eq.replace(/\s+/g,"");
-  eq = eq.replace(/\^/g,"**");
-  eq = eq.replace(/(\d)(x)/g,"$1*$2");
-  eq = eq.replace(/x(\d)/g,"x*$1");
-  eq = eq.replace(/(\d)\(/g,"$1*(");
-  eq = eq.replace(/x\(/g,"x*(");
-  eq = eq.replace(/sin/g,"Math.sin");
-  eq = eq.replace(/cos/g,"Math.cos");
-  eq = eq.replace(/tan/g,"Math.tan");
-  return eq;
-}
+// ------------- VOLUME CALCS -------------
+function volCube(){ document.getElementById('cubeOut').innerText = "Volume: "+(parseFloat(cubeSide.value)**3); }
+function volSphere(){ document.getElementById('sphereOut').innerText = "Volume: "+((4/3)*Math.PI*parseFloat(sphereR.value)**3); }
+function volRect(){ document.getElementById('rectOut').innerText = "Volume: "+(parseFloat(recL.value)*parseFloat(recW.value)*parseFloat(recH.value)); }
+function volCyl(){ document.getElementById('cylOut').innerText = "Volume: "+(Math.PI*parseFloat(cylR.value)**2*parseFloat(cylH.value)); }
+function volPyr(){ document.getElementById('pyrOut').innerText = "Volume: "+(parseFloat(pyrB.value)*parseFloat(pyrH.value)/3); }
 
-// -------- GRAPH --------
-function drawGraph(){
-  const canvas = document.getElementById("grid");
-  const ctx = canvas.getContext("2d");
-
-  canvas.width = canvas.clientWidth;
-  canvas.height = canvas.clientHeight;
-
-  const w = canvas.width;
-  const h = canvas.height;
-
-  let xminVal=+xmin.value, xmaxVal=+xmax.value;
-  let yminVal=+ymin.value, ymaxVal=+ymax.value;
-
-  function X(x){ return (x-xminVal)/(xmaxVal-xminVal)*w; }
-  function Y(y){ return h-(y-yminVal)/(ymaxVal-yminVal)*h; }
-
-  // background
-  ctx.fillStyle="black";
-  ctx.fillRect(0,0,w,h);
-
-  // grid (stylish)
-  ctx.strokeStyle="#222";
-  for(let i=0;i<=20;i++){
-    let x=xminVal+(xmaxVal-xminVal)/20*i;
-    let y=yminVal+(ymaxVal-yminVal)/20*i;
-
-    ctx.beginPath();
-    ctx.moveTo(X(x),0); ctx.lineTo(X(x),h);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(0,Y(y)); ctx.lineTo(w,Y(y));
-    ctx.stroke();
-  }
-
-  // axes
-  ctx.strokeStyle="#aaa";
-  ctx.lineWidth=2;
-  ctx.beginPath();
-  ctx.moveTo(X(0),0); ctx.lineTo(X(0),h);
-  ctx.moveTo(0,Y(0)); ctx.lineTo(w,Y(0));
-  ctx.stroke();
-
-  ctx.lineWidth=1;
-
-  const equations = [eq1,eq2,eq3,eq4];
-  const outputs = [out1,out2,out3,out4];
-  const colors = ["red","cyan","lime","yellow"];
-
-  equations.forEach((el,i)=>{
-    let eq = el.value;
-    if(!eq) return;
-
-    let parsed = parseEq(eq);
-
-    let func;
-    try{
-      func = Function("x","return "+parsed);
-      outputs[i].innerText = " f(1)=" + func(1).toFixed(2);
-    }catch{
-      outputs[i].innerText = " error";
-      return;
-    }
-
-    ctx.strokeStyle = colors[i];
-    ctx.beginPath();
-
-    let step = (xmaxVal - xminVal) / w;
-
-    let first = true;
-
-    for(let x=xminVal; x<=xmaxVal; x+=step){
-      let y;
-      try{ y = func(x); }
-      catch{ continue; }
-
-      if(!isFinite(y)) continue;
-
-      let px = X(x);
-      let py = Y(y);
-
-      if(first){
-        ctx.moveTo(px,py);
-        first=false;
-      } else {
-        ctx.lineTo(px,py);
-      }
-    }
-
-    ctx.stroke();
-  });
-}
-
-// -------- GAMES --------
+// ------------- GAMES -------------
 const games = [
-  "https://turbowarp.org/1143765424/embed"
+  "https://turbowarp.org/1143765424/embed?addons=pause&fps=60",
+  "https://turbowarp.org/1075310827/embed?addons=pause&fps=60",
+  "https://turbowarp.org/941803602/embed?addons=pause&fps=60",
+  "https://turbowarp.org/973637218/embed?addons=pause&fps=60",
+  "https://turbowarp.org/883776962/embed?addons=pause&fps=60",
+  "https://turbowarp.org/898492644/embed?addons=pause&fps=60",
+  "https://turbowarp.org/916303075/embed?addons=pause&fps=60",
+  "https://turbowarp.org/978483855/embed?addons=pause&fps=60",
+  "https://turbowarp.org/959847748/embed?addons=pause&fps=60"
 ];
+
 const titles = [
-  "Sisyphean Escalator"
+  "Sisyphean Escalator","Gambling but Mid","Laser Dodge","Goober Dodger",
+  "Neon's Hostile Road","Mid Cookie Clicker","Asteroid Assault",
+  "Reel 'Em In","Rat Catcher"
 ];
 
 let currentIndex = 0;
@@ -266,14 +151,16 @@ function updateGame(){
 
 function nextGame(){ currentIndex=(currentIndex+1)%games.length; updateGame(); }
 function prevGame(){ currentIndex=(currentIndex-1+games.length)%games.length; updateGame(); }
-
 function fullscreenGame(){
-  const elem=document.getElementById("gameContainer");
-  if(elem.requestFullscreen) elem.requestFullscreen();
+  const f=document.getElementById("scratchFrame");
+  if(f.requestFullscreen) f.requestFullscreen();
+  else if(f.webkitRequestFullscreen) f.webkitRequestFullscreen();
+  else if(f.msRequestFullscreen) f.msRequestFullscreen();
 }
 
-// init
+// ------------- INIT -------------
 load("home");
+updateGame();
 </script>
 
 </body>
