@@ -259,37 +259,73 @@ function drawGraph(){
 
   const ctx = canvas.getContext('2d');
 
-  ctx.fillStyle = "white";
+  // dark background
+  ctx.fillStyle = "black";
   ctx.fillRect(0, 0, 400, 400);
 
-  const xminVal = parseFloat(document.getElementById('xmin').value);
-  const xmaxVal = parseFloat(document.getElementById('xmax').value);
-  const yminVal = parseFloat(document.getElementById('ymin').value);
-  const ymaxVal = parseFloat(document.getElementById('ymax').value);
+  const xminVal = parseFloat(xmin.value);
+  const xmaxVal = parseFloat(xmax.value);
+  const yminVal = parseFloat(ymin.value);
+  const ymaxVal = parseFloat(ymax.value);
 
-  ctx.strokeStyle="#ddd";
+  const width = 400;
+  const height = 400;
+
+  // grid
+  ctx.strokeStyle="#333";
   ctx.lineWidth = 1;
-  for(let i=0;i<=400;i+=40){
-    ctx.beginPath(); ctx.moveTo(i,0); ctx.lineTo(i,400); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0,i); ctx.lineTo(400,i); ctx.stroke();
+  for(let i=0;i<=10;i++){
+    let x = i*(width/10);
+    let y = i*(height/10);
+
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,height); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0,y); ctx.lineTo(width,y); ctx.stroke();
   }
 
-  ctx.strokeStyle="black";
-  ctx.lineWidth = 3;
+  // axes
+  ctx.strokeStyle="white";
+  ctx.lineWidth = 2;
 
-  const xZero = (-xminVal)/(xmaxVal-xminVal)*400;
-  const yZero = (ymaxVal)/(ymaxVal-yminVal)*400;
+  const xZero = (-xminVal)/(xmaxVal-xminVal)*width;
+  const yZero = (ymaxVal)/(ymaxVal-yminVal)*height;
 
-  ctx.beginPath(); ctx.moveTo(xZero,0); ctx.lineTo(xZero,400); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(0,yZero); ctx.lineTo(400,yZero); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(xZero,0); ctx.lineTo(xZero,height); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0,yZero); ctx.lineTo(width,yZero); ctx.stroke();
+
+  // numbers
+  ctx.fillStyle = "white";
+  ctx.font = "10px Arial";
+
+  for(let i=0;i<=10;i++){
+    let xVal = xminVal + (i/10)*(xmaxVal-xminVal);
+    let yVal = yminVal + (i/10)*(ymaxVal-yminVal);
+
+    let px = i*(width/10);
+    let py = height - i*(height/10);
+
+    ctx.fillText(xVal.toFixed(1), px, yZero+10);
+    ctx.fillText(yVal.toFixed(1), xZero+5, py);
+  }
 
   const eqs = [eq1.value, eq2.value, eq3.value, eq4.value, eq5.value];
-  const colors = ["red","blue","green","purple","orange"];
+  const colors = ["red","cyan","lime","yellow","orange"];
+
+  let resultsHTML = "<h3>Results</h3>";
+
+  let functions = [];
 
   eqs.forEach((expr,i)=>{
     if(!expr) return;
 
     expr = expr.replace(/(\d)x/g, "$1*x");
+
+    let fn;
+    try {
+      fn = (x)=>eval(expr);
+      functions.push({fn, color:colors[i], expr});
+    } catch {
+      return;
+    }
 
     ctx.strokeStyle = colors[i];
     ctx.lineWidth = 2;
@@ -297,24 +333,60 @@ function drawGraph(){
 
     let first=true;
 
-    for(let px=0; px<=400; px++){
-      const x = xminVal + (px/400)*(xmaxVal-xminVal);
+    for(let px=0; px<=width; px++){
+      const x = xminVal + (px/width)*(xmaxVal-xminVal);
       let y;
 
-      try { y = eval(expr); } catch { continue; }
+      try { y = fn(x); } catch { continue; }
 
-      const py = (ymaxVal-y)/(ymaxVal-yminVal)*400;
+      const py = (ymaxVal-y)/(ymaxVal-yminVal)*height;
 
-      if(py>=0 && py<=400){
+      if(py>=0 && py<=height){
         if(first){ ctx.moveTo(px,py); first=false; }
         else ctx.lineTo(px,py);
       }
     }
 
     ctx.stroke();
-  });
-}
 
+    // value at x=0
+    try {
+      let y0 = fn(0);
+      resultsHTML += `<p style="color:${colors[i]}">y=${expr} → y(0) = ${y0.toFixed(2)}</p>`;
+    } catch {}
+  });
+
+  // intersections
+  for(let i=0;i<functions.length;i++){
+    for(let j=i+1;j<functions.length;j++){
+
+      for(let x=xminVal; x<=xmaxVal; x+=0.1){
+        let y1, y2;
+        try{
+          y1 = functions[i].fn(x);
+          y2 = functions[j].fn(x);
+        } catch { continue; }
+
+        if(Math.abs(y1 - y2) < 0.1){
+          resultsHTML += `<p>Intersection ≈ (${x.toFixed(2)}, ${y1.toFixed(2)})</p>`;
+          break;
+        }
+      }
+
+    }
+  }
+
+  // attach results
+  let existing = document.getElementById("graphResults");
+  if(!existing){
+    const div = document.createElement("div");
+    div.id = "graphResults";
+    canvas.parentElement.appendChild(div);
+    existing = div;
+  }
+
+  existing.innerHTML = resultsHTML;
+}
 // ------------- GAMES -------------
 const games = [
 "https://turbowarp.org/10128407/embed?addons=pause,fullscreen",
