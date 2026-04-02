@@ -10,7 +10,7 @@ input { margin:4px; font-size:1em; }
 button { margin:4px; font-size:1em; padding:8px 12px; border:none; border-radius:4px; background:#444; color:white; cursor:pointer; }
 button:hover { background:#666; }
 
-#scratchFrame { width:80vw; height:70vh; border:none; }
+#scratchFrame { width:100%; height:70vh; border:none; }
 
 #content {
   width: 100%;
@@ -39,6 +39,9 @@ button:hover { background:#666; }
 .centerBox {
   width: 60%;
   text-align:center;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
 }
 
 @media(max-width: 800px){
@@ -62,7 +65,7 @@ button:hover { background:#666; }
 <div id="content">Loading...</div>
 
 <div style="position:fixed; bottom:5px; right:10px; color:gray; font-size:12px;">
-  v0.16 <!-- INCREMENT THIS EVERY UPDATE -->
+  v0.20 <!-- INCREMENT THIS EVERY UPDATE -->
 </div>
 
 <script>
@@ -88,7 +91,7 @@ calc: `
 games: `
 <h2>Scratch Games</h2>
 
-<div style="display:flex; gap:10px;">
+<div style="display:flex; gap:10px; align-items:center; justify-content:center;">
 
   <div class="sideBox">
     <h3>Controls</h3>
