@@ -25,8 +25,26 @@ button:hover { background:#666; }
   color: #ccc;
 }
 
+/* NEW */
+.sideBox {
+  width: 20%;
+  padding: 10px;
+  background:#111;
+  border:1px solid #333;
+  border-radius:8px;
+  overflow-y:auto;
+  height:70vh;
+}
+
+.centerBox {
+  width: 60%;
+  text-align:center;
+}
+
 @media(max-width: 800px){
   body { font-size: 1.2em; }
+  .sideBox { display:none; }
+  .centerBox { width:100%; }
 }
 </style>
 </head>
@@ -44,7 +62,7 @@ button:hover { background:#666; }
 <div id="content">Loading...</div>
 
 <div style="position:fixed; bottom:5px; right:10px; color:gray; font-size:12px;">
-  v0.16
+  v0.16 <!-- INCREMENT THIS EVERY UPDATE -->
 </div>
 
 <script>
@@ -69,12 +87,27 @@ calc: `
 
 games: `
 <h2>Scratch Games</h2>
-<div style="text-align:center;">
-<button onclick="prevGame()">◀</button>
-<button onclick="nextGame()">▶</button>
-<br><br>
-<iframe id="scratchFrame" allowfullscreen></iframe>
-<h3 id="gameTitle"></h3>
+
+<div style="display:flex; gap:10px;">
+
+  <div class="sideBox">
+    <h3>Controls</h3>
+    <p id="gameControls"></p>
+  </div>
+
+  <div class="centerBox">
+    <button onclick="prevGame()">◀</button>
+    <button onclick="nextGame()">▶</button>
+    <br><br>
+    <iframe id="scratchFrame" allowfullscreen></iframe>
+    <h3 id="gameTitle"></h3>
+  </div>
+
+  <div class="sideBox">
+    <h3>Notes / Credits</h3>
+    <p id="gameNotes"></p>
+  </div>
+
 </div>
 `,
 
@@ -126,22 +159,22 @@ function showCalc(type){
       <button onclick="volSphere()">Calc</button>
       <p id="sphereOut"></p>
 
-      Rectangular Prism (L W H):
-      <input id="recL" placeholder="L" onkeydown="enterRun(event, volRect)">
-      <input id="recW" placeholder="W" onkeydown="enterRun(event, volRect)">
-      <input id="recH" placeholder="H" onkeydown="enterRun(event, volRect)">
+      Rectangular Prism (Length, Width, Height):
+      <input id="recL" placeholder="Length" onkeydown="enterRun(event, volRect)">
+      <input id="recW" placeholder="Width" onkeydown="enterRun(event, volRect)">
+      <input id="recH" placeholder="Height" onkeydown="enterRun(event, volRect)">
       <button onclick="volRect()">Calc</button>
       <p id="rectOut"></p>
 
-      Cylinder (R H):
-      <input id="cylR" placeholder="R" onkeydown="enterRun(event, volCyl)">
-      <input id="cylH" placeholder="H" onkeydown="enterRun(event, volCyl)">
+      Cylinder (Radius, Height):
+      <input id="cylR" placeholder="Radius" onkeydown="enterRun(event, volCyl)">
+      <input id="cylH" placeholder="Height" onkeydown="enterRun(event, volCyl)">
       <button onclick="volCyl()">Calc</button>
       <p id="cylOut"></p>
 
-      Pyramid (Base Area, H):
-      <input id="pyrB" placeholder="Base" onkeydown="enterRun(event, volPyr)">
-      <input id="pyrH" placeholder="H" onkeydown="enterRun(event, volPyr)">
+      Pyramid (Base Area, Height):
+      <input id="pyrB" placeholder="Base Area" onkeydown="enterRun(event, volPyr)">
+      <input id="pyrH" placeholder="Height" onkeydown="enterRun(event, volPyr)">
       <button onclick="volPyr()">Calc</button>
       <p id="pyrOut"></p>
     `;
@@ -296,6 +329,10 @@ const titles = [
 "Reel 'Em In","Rat Catcher"
 ];
 
+// NEW
+const controls = ["","","","","","","","","",""];
+const notes = ["","","","","","","","","",""];
+
 let currentIndex = 0;
 
 function updateGame(){
@@ -303,6 +340,9 @@ function updateGame(){
   if(!f) return;
   f.src=games[currentIndex];
   gameTitle.innerText=titles[currentIndex];
+
+  document.getElementById("gameControls").innerText = controls[currentIndex] || "";
+  document.getElementById("gameNotes").innerText = notes[currentIndex] || "";
 }
 
 function nextGame(){ currentIndex=(currentIndex+1)%games.length; updateGame(); }
