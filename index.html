@@ -31,9 +31,35 @@
     }
 
     body {
-      background: radial-gradient(circle at top, #171717 0%, #050505 28%, #000 100%);
+      background: #000;
       color: var(--text);
       font-family: Arial, sans-serif;
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+    }
+
+    body.video-bg {
+      background: none;
+      position: relative;
+    }
+
+    #videoBg {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      z-index: -1;
+      filter: blur(8px);
+    }
+
+    .content-overlay {
+      position: relative;
+      z-index: 1;
+      background: rgba(0, 0, 0, 0.85);
+      min-height: 100vh;
     }
 
     button,
@@ -194,15 +220,7 @@
       flex-direction: column;
     }
 
-    .patch-panel::before {
-      content: "";
-      position: absolute;
-      inset: 0 0 auto auto;
-      width: 180px;
-      height: 180px;
-      background: radial-gradient(circle, var(--accent-soft) 0%, transparent 70%);
-      pointer-events: none;
-    }
+
 
     .version-chip {
       display: inline-flex;
@@ -283,6 +301,28 @@
       margin: 0.75rem auto;
       font-size: 1.2rem;
       padding: 1rem 1.5rem;
+    }
+
+    .back-button {
+      display: block;
+      margin: 1rem auto 2rem;
+      font-size: 1rem;
+      padding: 0.7rem 1.2rem;
+    }
+
+    .wip-container {
+      text-align: center;
+      padding: 3rem 1rem;
+    }
+
+    .wip-container h2 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    .wip-container p {
+      color: #b3b3b3;
+      font-size: 1.2rem;
     }
 
     .sideBox {
@@ -535,7 +575,7 @@
     <button onclick="load('about')">About</button>
   </nav>
   <div class="topbar-right">
-    <button id="muteBtn" onclick="toggleMute()">🔊 Unmute</button>
+    <button id="muteBtn" onclick="toggleMute()">🔊 Mute</button>
   </div>
 </div>
 
@@ -570,7 +610,7 @@ const pages = {
       </article>
 
       <aside class="panel patch-panel">
-        <div class="version-chip">Latest patch · v0.24</div>
+        <div class="version-chip">Latest patch · v0.25</div>
         <h3>Patch Notes</h3>
         <p class="section-copy">Recent changes to the homepage and site structure.</p>
         <ul class="patch-list">
@@ -619,10 +659,7 @@ const pages = {
 
 function load(page) {
   document.getElementById("content").innerHTML = pages[page];
-
-  if (page === "games") {
-    showScratchGames();
-  }
+  // Games page now shows menu only, no auto-loading
 }
 
 function enterRun(e, fn) {
@@ -1023,13 +1060,51 @@ let isMuted = false;
 function toggleMute() {
   isMuted = !isMuted;
   const btn = document.getElementById('muteBtn');
-  btn.innerText = isMuted ? '🔇 Muted' : '🔊 Unmute';
-  btn.style.background = isMuted ? '#555' : '#444';
+  
+  if (isMuted) {
+    btn.innerText = '🔇 Unmute';
+    btn.style.background = '#555';
+    // Mute all audio elements
+    document.querySelectorAll('audio').forEach(el => {
+      el.muted = true;
+    });
+    // Mute iframes by setting volume to 0 via postMessage (for Scratch)
+    document.querySelectorAll('iframe').forEach(el => {
+      try {
+        el.contentWindow.postMessage({type: 'mute'}, '*');
+      } catch (e) {}
+    });
+  } else {
+    btn.innerText = '🔊 Mute';
+    btn.style.background = '#444';
+    // Unmute all audio elements
+    document.querySelectorAll('audio').forEach(el => {
+      el.muted = false;
+    });
+    // Unmute iframes
+    document.querySelectorAll('iframe').forEach(el => {
+      try {
+        el.contentWindow.postMessage({type: 'unmute'}, '*');
+      } catch (e) {}
+    });
+  }
+}
+
+function setVideoBackground(videoUrl) {
+  const video = document.createElement('video');
+  video.id = 'videoBg';
+  video.autoplay = true;
+  video.loop = true;
+  video.muted = true;
+  video.src = videoUrl;
+  document.body.insertBefore(video, document.body.firstChild);
+  document.body.classList.add('video-bg');
 }
 
 function showScratchGames() {
   const content = document.getElementById('gamesContent');
   content.innerHTML = `
+    <button class="back-button" onclick="load('games')">← Back to Games Menu</button>
     <div class="games-layout">
       <div class="sideBox">
         <h3>Controls</h3>
@@ -1058,6 +1133,7 @@ function showScratchGames() {
 function showEmulators() {
   const content = document.getElementById('gamesContent');
   content.innerHTML = `
+    <button class="back-button" onclick="load('games')">← Back to Games Menu</button>
     <div class="games-menu" style="max-width: 400px; margin: 2rem auto;">
       <h3>Select Emulator</h3>
       <button onclick="navigateTo('nes')">NES</button>
@@ -1070,11 +1146,11 @@ function showEmulators() {
 function navigateTo(emulator) {
   const content = document.getElementById('gamesContent');
   content.innerHTML = `
-    <div style="text-align: center; padding: 3rem 1rem;">
+    <div class="wip-container">
       <h2>${emulator.toUpperCase()} Emulator</h2>
-      <p style="color: #b3b3b3; font-size: 1.2rem;">Work in Progress</p>
+      <p>Work in Progress</p>
       <p style="color: #888; margin-top: 1rem;">This section is currently under development.</p>
-      <button onclick="showEmulators()" style="margin-top: 1rem;">← Back to Emulators</button>
+      <button class="back-button" onclick="showEmulators()">← Back to Emulators</button>
     </div>
   `;
 }
