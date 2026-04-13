@@ -81,10 +81,27 @@
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(10px);
       padding: 1rem 0;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 2rem;
     }
 
     .nav {
       text-align: center;
+    }
+
+    .topbar-right {
+      position: absolute;
+      right: 1rem;
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    #muteBtn {
+      padding: 0.6rem 0.8rem;
+      font-size: 1rem;
+      min-width: 60px;
     }
 
     .page-shell {
@@ -171,6 +188,10 @@
       padding: 2rem;
       position: relative;
       overflow: hidden;
+      max-height: 600px;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
     }
 
     .patch-panel::before {
@@ -187,20 +208,20 @@
       display: inline-flex;
       align-items: center;
       gap: 0.75rem;
-      margin-bottom: 1rem;
-      padding: 0.6rem 1rem;
+      margin-bottom: 0.5rem;
+      padding: 0.5rem 0.8rem;
       border-radius: 999px;
       border: 1px solid rgba(125, 211, 252, 0.4);
       background: rgba(125, 211, 252, 0.08);
       color: var(--accent);
-      font-size: 1rem;
+      font-size: 0.9rem;
     }
 
     .patch-list {
       margin: 1rem 0 0;
       padding-left: 1.5rem;
       line-height: 1.65;
-      font-size: 1.05rem;
+      font-size: 0.95rem;
     }
 
     .patch-list li + li {
@@ -250,6 +271,18 @@
       gap: 1rem;
       align-items: center;
       justify-content: center;
+    }
+
+    .games-menu {
+      text-align: center;
+    }
+
+    .games-menu button {
+      display: block;
+      width: 100%;
+      margin: 0.75rem auto;
+      font-size: 1.2rem;
+      padding: 1rem 1.5rem;
     }
 
     .sideBox {
@@ -352,6 +385,11 @@
       .patch-panel h3 {
         font-size: 1.3rem;
       }
+
+      .patch-panel {
+        max-height: 400px;
+      }
+    }
     }
 
     @media (max-width: 768px) {
@@ -375,6 +413,18 @@
       .games-panel,
       .about-panel {
         padding: 1.5rem;
+      }
+
+      .patch-panel {
+        max-height: 350px;
+      }
+
+      .topbar {
+        gap: 1rem;
+      }
+
+      .topbar-right {
+        right: 0.5rem;
       }
 
       .hero-panel h2,
@@ -484,6 +534,9 @@
     <button onclick="load('games')">Games</button>
     <button onclick="load('about')">About</button>
   </nav>
+  <div class="topbar-right">
+    <button id="muteBtn" onclick="toggleMute()">🔊 Unmute</button>
+  </div>
 </div>
 
 <main class="page-shell">
@@ -547,27 +600,12 @@ const pages = {
 
   games: `
     <section class="panel games-panel">
-      <h2>Scratch Games</h2>
-      <div class="games-layout">
-        <div class="sideBox">
-          <h3>Controls</h3>
-          <div id="gameControls"></div>
-        </div>
-
-        <div class="centerBox">
-          <div class="button-row" style="justify-content:center;">
-            <button onclick="prevGame()">◀</button>
-            <button onclick="nextGame()">▶</button>
-          </div>
-          <iframe id="scratchFrame" allowfullscreen title="GN-Gassy Scratch game viewer"></iframe>
-          <h3 id="gameTitle"></h3>
-        </div>
-
-        <div class="sideBox">
-          <h3>Notes / Credits</h3>
-          <div id="gameNotes"></div>
-        </div>
+      <h2>Games</h2>
+      <div class="games-menu" id="gamesMenu">
+        <button onclick="showScratchGames()">Scratch Games</button>
+        <button onclick="showEmulators()">Emulators</button>
       </div>
+      <div id="gamesContent"></div>
     </section>
   `,
 
@@ -583,8 +621,7 @@ function load(page) {
   document.getElementById("content").innerHTML = pages[page];
 
   if (page === "games") {
-    currentIndex = 0;
-    updateGame();
+    showScratchGames();
   }
 }
 
@@ -981,6 +1018,66 @@ Link to my Pixil art profile: https://www.pixilart.com/neon64makoto/gallery
 goober.`, `Everything was pretty much made in scratch except for the harpoon and boat clip art. Also the fish are just a part of scratch's sprite library.`, `<b>!!!VOLUME WARNING!!!</b>`];
 
 let currentIndex = 0;
+let isMuted = false;
+
+function toggleMute() {
+  isMuted = !isMuted;
+  const btn = document.getElementById('muteBtn');
+  btn.innerText = isMuted ? '🔇 Muted' : '🔊 Unmute';
+  btn.style.background = isMuted ? '#555' : '#444';
+}
+
+function showScratchGames() {
+  const content = document.getElementById('gamesContent');
+  content.innerHTML = `
+    <div class="games-layout">
+      <div class="sideBox">
+        <h3>Controls</h3>
+        <div id="gameControls"></div>
+      </div>
+
+      <div class="centerBox">
+        <div class="button-row" style="justify-content:center;">
+          <button onclick="prevGame()">◀</button>
+          <button onclick="nextGame()">▶</button>
+        </div>
+        <iframe id="scratchFrame" allowfullscreen title="GN-Gassy Scratch game viewer"></iframe>
+        <h3 id="gameTitle"></h3>
+      </div>
+
+      <div class="sideBox">
+        <h3>Notes / Credits</h3>
+        <div id="gameNotes"></div>
+      </div>
+    </div>
+  `;
+  currentIndex = 0;
+  updateGame();
+}
+
+function showEmulators() {
+  const content = document.getElementById('gamesContent');
+  content.innerHTML = `
+    <div class="games-menu" style="max-width: 400px; margin: 2rem auto;">
+      <h3>Select Emulator</h3>
+      <button onclick="navigateTo('nes')">NES</button>
+      <button onclick="navigateTo('snes')">SNES</button>
+      <button onclick="navigateTo('genesis')">Genesis</button>
+    </div>
+  `;
+}
+
+function navigateTo(emulator) {
+  const content = document.getElementById('gamesContent');
+  content.innerHTML = `
+    <div style="text-align: center; padding: 3rem 1rem;">
+      <h2>${emulator.toUpperCase()} Emulator</h2>
+      <p style="color: #b3b3b3; font-size: 1.2rem;">Work in Progress</p>
+      <p style="color: #888; margin-top: 1rem;">This section is currently under development.</p>
+      <button onclick="showEmulators()" style="margin-top: 1rem;">← Back to Emulators</button>
+    </div>
+  `;
+}
 
 function updateGame() {
   const f = document.getElementById("scratchFrame");
