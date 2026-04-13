@@ -80,8 +80,9 @@
     }
 
     button:hover {
-      background: #666;
-      border-color: #7a7a7a;
+      background: #555;
+      border-color: #00bfff;
+      box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
       transform: translateY(-1px);
     }
 
@@ -115,6 +116,15 @@
 
     .nav {
       text-align: center;
+    }
+
+    .topbar-brand {
+      position: absolute;
+      left: 1rem;
+      font-size: 1.3rem;
+      font-weight: bold;
+      color: #00bfff;
+      letter-spacing: 1px;
     }
 
     .topbar-right {
@@ -565,9 +575,8 @@
     }
   </style>
 </head>
-<body>
-
-<div class="topbar">
+<body>  <div class="topbar">
+  <div class="topbar-brand">GN-Gassy</div>
   <nav class="nav" aria-label="Primary">
     <button onclick="load('home')">Home</button>
     <button onclick="load('calc')">Calculators</button>
@@ -585,7 +594,7 @@
 </main>
 
 <div class="version-tag">
-  v0.24
+  v0.26
 </div>
 
 <script>
@@ -610,7 +619,7 @@ const pages = {
       </article>
 
       <aside class="panel patch-panel">
-        <div class="version-chip">Latest patch · v0.25</div>
+        <div class="version-chip">Latest patch · v0.26</div>
         <h3>Patch Notes</h3>
         <p class="section-copy">Recent changes to the homepage and site structure.</p>
         <ul class="patch-list">
@@ -620,7 +629,7 @@ const pages = {
           <li>Added media queries for optimal display on all screen sizes (480px to 1200px+).</li>
           <li>Kept the existing dark GN-Gassy look while improving the overall user experience.</li>
           <li>Added a dedicated <strong>Patch Notes</strong> area to the Home page.</li>
-          <li>Updated the displayed site version from v0.23 to <strong>v0.24</strong>.</li>
+          <li>Updated the displayed site version from v0.25 to <strong>v0.26</strong>.</li>
         </ul>
       </aside>
     </section>
@@ -659,7 +668,13 @@ const pages = {
 
 function load(page) {
   document.getElementById("content").innerHTML = pages[page];
-  // Games page now shows menu only, no auto-loading
+  // Show games menu when returning to games page
+  if (page === 'games') {
+    setTimeout(() => {
+      const gamesMenu = document.querySelector('.games-menu');
+      if (gamesMenu) gamesMenu.style.display = 'block';
+    }, 0);
+  }
 }
 
 function enterRun(e, fn) {
@@ -1103,6 +1118,10 @@ function setVideoBackground(videoUrl) {
 
 function showScratchGames() {
   const content = document.getElementById('gamesContent');
+  // Hide the games menu buttons
+  const gamesMenu = document.querySelector('.games-menu');
+  if (gamesMenu) gamesMenu.style.display = 'none';
+  
   content.innerHTML = `
     <button class="back-button" onclick="load('games')">← Back to Games Menu</button>
     <div class="games-layout">
@@ -1132,6 +1151,10 @@ function showScratchGames() {
 
 function showEmulators() {
   const content = document.getElementById('gamesContent');
+  // Hide the games menu buttons
+  const gamesMenu = document.querySelector('.games-menu');
+  if (gamesMenu) gamesMenu.style.display = 'none';
+  
   content.innerHTML = `
     <button class="back-button" onclick="load('games')">← Back to Games Menu</button>
     <div class="games-menu" style="max-width: 400px; margin: 2rem auto;">
