@@ -39,6 +39,55 @@
       background-attachment: fixed;
     }
 
+    /* Video loading state */
+    body.video-loading::before {
+      content: '';
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(45deg, #0a0a0a 25%, #1a1a2e 25%, #1a1a2e 50%, #0a0a0a 50%, #0a0a0a 75%, #1a1a2e 75%, #1a1a2e);
+      background-size: 40px 40px;
+      animation: loading-stripes 0.8s linear infinite;
+      z-index: 999;
+      pointer-events: none;
+    }
+
+    @keyframes loading-stripes {
+      0% {
+        background-position: 0 0;
+      }
+      100% {
+        background-position: 40px 40px;
+      }
+    }
+
+    /* Styled scrollbars */
+    ::-webkit-scrollbar {
+      width: 12px;
+      height: 12px;
+    }
+
+    ::-webkit-scrollbar-track {
+      background: #0a0a0a;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background: #0600ff;
+      border-radius: 6px;
+    }
+
+    ::-webkit-scrollbar-thumb:hover {
+      background: #0044ff;
+    }
+
+    /* Firefox scrollbar styling */
+    * {
+      scrollbar-color: #0600ff #0a0a0a;
+      scrollbar-width: thin;
+    }
+
     body.video-bg {
       background: none;
       position: relative;
@@ -349,7 +398,7 @@
     }
 
     .centerBox {
-      width: 60%;
+      width: 70%;
       text-align: center;
       display: flex;
       flex-direction: column;
@@ -595,7 +644,7 @@
 </main>
 
 <div class="version-tag">
-  v0.32
+  v0.33
 </div>
 
 <script>
@@ -620,7 +669,7 @@ const pages = {
       </article>
 
       <aside class="panel patch-panel">
-        <div class="version-chip">Latest patch · v0.32</div>
+        <div class="version-chip">Latest patch · v0.33</div>
         <h3>Patch Notes</h3>
         <p class="section-copy">Recent changes to the homepage and site structure.</p>
         <ul class="patch-list">
@@ -1103,12 +1152,21 @@ function toggleMute() {
 }
 
 function setVideoBackground(videoUrl) {
+  // Show loading animation
+  document.body.classList.add('video-loading');
+  
   const video = document.createElement('video');
   video.id = 'videoBg';
   video.autoplay = true;
   video.loop = true;
   video.muted = true;
   video.src = videoUrl;
+  
+  // Remove loading animation when video can play
+  video.addEventListener('canplay', () => {
+    document.body.classList.remove('video-loading');
+  });
+  
   document.body.insertBefore(video, document.body.firstChild);
   document.body.classList.add('video-bg');
 }
