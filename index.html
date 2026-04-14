@@ -347,7 +347,7 @@
     .games-layout {
       display: flex;
       gap: 1rem;
-      align-items: center;
+      align-items: flex-start;
       justify-content: center;
     }
 
@@ -398,11 +398,16 @@
     }
 
     .centerBox {
-      width: 100%;
+      width: 70%;
       text-align: center;
       display: flex;
       flex-direction: column;
       align-items: center;
+      flex-shrink: 0;
+    }
+
+    .sideBox {
+      flex-shrink: 0;
     }
 
     #gameControls,
@@ -644,7 +649,7 @@
 </main>
 
 <div class="version-tag">
-  v0.33
+    v0.35
 </div>
 
 <script>
@@ -669,7 +674,7 @@ const pages = {
       </article>
 
       <aside class="panel patch-panel">
-        <div class="version-chip">Latest patch · v0.33</div>
+        <div class="version-chip">Latest patch · v0.35</div>
         <h3>Patch Notes</h3>
         <p class="section-copy">Recent changes to the homepage and site structure.</p>
         <ul class="patch-list">
@@ -1223,14 +1228,25 @@ function showEmulators() {
 
 function navigateTo(emulator) {
   const content = document.getElementById('gamesContent');
-  content.innerHTML = `
-    <div class="wip-container">
-      <h2>${emulator.toUpperCase()} Emulator</h2>
-      <p>Work in Progress</p>
-      <p style="color: #888; margin-top: 1rem;">This section is currently under development.</p>
+  
+  if (emulator === 'nes') {
+    content.innerHTML = `
       <button class="back-button" onclick="showEmulators()">← Back to Emulators</button>
-    </div>
-  `;
+      <div style="max-width: 900px; margin: 2rem auto;">
+        <h2>NES Emulator</h2>
+        <iframe src="https://emulicious.net/" width="100%" height="600" frameborder="0" style="border-radius: 10px; border: 1px solid #333;"></iframe>
+      </div>
+    `;
+  } else {
+    content.innerHTML = `
+      <div class="wip-container">
+        <h2>${emulator.toUpperCase()} Emulator</h2>
+        <p>Work in Progress</p>
+        <p style="color: #888; margin-top: 1rem;">This section is currently under development.</p>
+        <button class="back-button" onclick="showEmulators()">← Back to Emulators</button>
+      </div>
+    `;
+  }
 }
 
 function updateGame() {
