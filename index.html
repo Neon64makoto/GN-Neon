@@ -81,7 +81,7 @@
 
     button:hover {
       background: #555;
-      border-color: #0400ff;
+      border-color: #00bfff;
       box-shadow: 0 0 10px rgba(0, 191, 255, 0.5);
       transform: translateY(-1px);
     }
@@ -584,7 +584,7 @@
     <button onclick="load('about')">About</button>
   </nav>
   <div class="topbar-right">
-    <button id="muteBtn" onclick="toggleMute()">Mute</button>
+    <button id="muteBtn" onclick="toggleMute()">🔊 Mute</button>
   </div>
 </div>
 
@@ -594,7 +594,7 @@
 </main>
 
 <div class="version-tag">
-  v0.26
+  v0.30
 </div>
 
 <script>
@@ -605,7 +605,7 @@ const pages = {
     <section class="home-grid">
       <article class="panel hero-panel">
         <h2>Home</h2>
-        <p class="lead">Welcome to GN-Gassy. Take a look at these cats.</p>
+        <p class="lead">Welcome to GN-Gassy. This keeps the original dark look, but now scales properly with your screen size and has improved sizing for better readability.</p>
         <div class="image-row">
           <figure class="image-card">
             <img src="https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/sili2.jpg" alt="Cat image from GN-Gassy">
@@ -619,14 +619,11 @@ const pages = {
       </article>
 
       <aside class="panel patch-panel">
-        <div class="version-chip">Latest patch · v0.26</div>
+        <div class="version-chip">Latest patch · v0.30</div>
         <h3>Patch Notes</h3>
         <p class="section-copy">Recent changes to the homepage and site structure.</p>
         <ul class="patch-list">
-          <li>Implemented scaling using viewport-based font sizing.</li>
-          <li>Increased font sizes and spacing for non-game sections to improve readability.</li>
-          <li>Added media queries for optimal display on all screen sizes (480px to 1200px+).</li>
-          <li>Added a dedicated <strong>Patch Notes</strong> area to the Home page.</li>
+          <li>Added background video that is <strong>.mp4</strong></li>
         </ul>
       </aside>
     </section>
@@ -1074,7 +1071,7 @@ function toggleMute() {
   const btn = document.getElementById('muteBtn');
   
   if (isMuted) {
-    btn.innerText = 'Unmute';
+    btn.innerText = '🔇 Unmute';
     btn.style.background = '#555';
     // Mute all audio elements
     document.querySelectorAll('audio').forEach(el => {
@@ -1087,7 +1084,7 @@ function toggleMute() {
       } catch (e) {}
     });
   } else {
-    btn.innerText = 'Mute';
+    btn.innerText = '🔊 Mute';
     btn.style.background = '#444';
     // Unmute all audio elements
     document.querySelectorAll('audio').forEach(el => {
@@ -1195,6 +1192,7 @@ function prevGame() {
 }
 
 load("home");
+setVideoBackground('https://raw.githubusercontent.com/Neon64makoto/GN-Gassy/main/Files/FlatlineLoop.mp4');
 </script>
 
 </body>
