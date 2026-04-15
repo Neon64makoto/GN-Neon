@@ -225,14 +225,10 @@
     }
     .games-panel {
       padding: 0;
-      width: calc(100vw - 20px);
+      width: calc(100% - 20px);
+      max-width: 1000px;
       position: relative;
-      left: 50%;
-      right: 50%;
-      margin-left: calc(-50vw + 10px);
-      margin-right: -50vw;
-      margin-top: 10px;
-      margin-bottom: 10px;
+      margin: 10px auto;
       border-radius: 0;
       background: linear-gradient(180deg, rgba(0, 0, 0, 1), rgba(0, 0, 150, 0.5));
     }
@@ -243,7 +239,8 @@
     }
 
     .games-menu {
-      padding: 0 2rem;
+      padding: 0 2rem 2rem 2rem;
+      text-align: center;
     }
 
     #gamesContent {
@@ -373,7 +370,8 @@
       justify-content: center;
       width: 100%;
       padding: 1rem 2rem 2rem 2rem;
-      margin: 10px;
+      margin: 0;
+      box-sizing: border-box;
     }
 
     .games-menu {
@@ -674,7 +672,7 @@
 </main>
 
 <div class="version-tag">
-    v0.38
+    v0.36
 </div>
 
 <script>
@@ -699,7 +697,7 @@ const pages = {
       </article>
 
       <aside class="panel patch-panel">
-        <div class="version-chip">Latest patch · v0.38</div>
+        <div class="version-chip">Latest patch · v0.36</div>
         <h3>Patch Notes</h3>
         <p class="section-copy">Recent changes to the homepage and site structure.</p>
         <ul class="patch-list">
@@ -1258,21 +1256,21 @@ function navigateTo(emulator) {
   if (emulator === 'nes') {
     content.innerHTML = `
       <button class="back-button" onclick="showEmulators()">← Back to Emulators</button>
-      <div style="width: 100%; max-width: 1000px; margin: 2rem auto;">
+      <div style="width: 100%; max-width: 900px; margin: 2rem auto;">
         <h2 style="padding: 0 0 1rem 0;">NES Emulator</h2>
-        <div style="width:100%;height:600px;max-width:100%; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid #333;">
+        <div style="width:100%;height:500px;max-width:100%; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid #333;">
             <div id="game"></div>
         </div>
         <script>
-            EJS_player = '#game';
-            EJS_core = 'nes';
-            EJS_gameName = 'cpu_dummy_reads';
-            EJS_color = '#0006ff';
-            EJS_startOnLoaded = true;
-            EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
-            EJS_url = 'https://raw.githubusercontent.com/Neon64makoto/GN-Gassy/main/Files/Roms/cpu_dummy_reads.nes';
+            window.EJS_player = '#game';
+            window.EJS_core = 'nes';
+            window.EJS_gameName = 'cpu_dummy_reads';
+            window.EJS_color = '#0006ff';
+            window.EJS_startOnLoaded = true;
+            window.EJS_pathtodata = 'https://cdn.jsdelivr.net/gh/EmulatorJS/EmulatorJS@latest/data/';
+            window.EJS_url = 'https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/Files/Roms/cpu_dummy_reads.nes';
         <\/script>
-        <script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script>
+        <script src="https://cdn.jsdelivr.net/gh/EmulatorJS/EmulatorJS@latest/data/loader.js"><\/script>
       </div>
     `;
   } else {
