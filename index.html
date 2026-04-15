@@ -225,12 +225,14 @@
     }
     .games-panel {
       padding: 0;
-      width: 100vw;
+      width: calc(100vw - 20px);
       position: relative;
       left: 50%;
       right: 50%;
-      margin-left: -50vw;
+      margin-left: calc(-50vw + 10px);
       margin-right: -50vw;
+      margin-top: 10px;
+      margin-bottom: 10px;
       border-radius: 0;
       background: linear-gradient(180deg, rgba(0, 0, 0, 1), rgba(0, 0, 150, 0.5));
     }
@@ -371,6 +373,7 @@
       justify-content: center;
       width: 100%;
       padding: 1rem 2rem 2rem 2rem;
+      margin: 10px;
     }
 
     .games-menu {
@@ -670,11 +673,10 @@
   <div id="content">Loading...</div>
 </main>
 
-
-<div class="version-tag"> 
-    v0.37
+<div class="version-tag">
+    v0.38
 </div>
-// Always change version number!
+
 <script>
 // GN-Gassy behavior: keep the site fast and direct, preserve the original utility feel, and organize page logic clearly.
 
@@ -697,7 +699,7 @@ const pages = {
       </article>
 
       <aside class="panel patch-panel">
-        <div class="version-chip">Latest patch · v0.37</div>
+        <div class="version-chip">Latest patch · v0.38</div>
         <h3>Patch Notes</h3>
         <p class="section-copy">Recent changes to the homepage and site structure.</p>
         <ul class="patch-list">
@@ -1264,10 +1266,11 @@ function navigateTo(emulator) {
         <script>
             EJS_player = '#game';
             EJS_core = 'nes';
-            EJS_gameName = "NES Game";
+            EJS_gameName = 'cpu_dummy_reads';
             EJS_color = '#0006ff';
             EJS_startOnLoaded = true;
             EJS_pathtodata = 'https://cdn.emulatorjs.org/stable/data/';
+            EJS_url = 'https://raw.githubusercontent.com/Neon64makoto/GN-Gassy/main/Files/Roms/cpu_dummy_reads.nes';
         <\/script>
         <script src="https://cdn.emulatorjs.org/stable/data/loader.js"><\/script>
       </div>
