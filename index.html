@@ -360,7 +360,7 @@
 
     #scratchFrame {
       width: 100%;
-      height: 70vh;
+      height: 60vh;
       border: none;
       border-radius: 10px;
       background: #000;
@@ -1218,12 +1218,12 @@ function showScratchGames() {
       </div>
 
       <div class="centerBox">
-        <div class="button-row" style="justify-content:center;">
-          <button onclick="prevGame()">◀</button>
-          <button onclick="nextGame()">▶</button>
-        </div>
         <iframe id="scratchFrame" allowfullscreen title="GN-Gassy Scratch game viewer"></iframe>
         <h3 id="gameTitle"></h3>
+      </div>
+      <div class="button-row" style="justify-content:center;">
+          <button onclick="prevGame()">◀</button>
+          <button onclick="nextGame()">▶</button>
       </div>
 
       <div class="sideBox">
