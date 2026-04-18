@@ -1080,7 +1080,7 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
     analyser.getByteFrequencyData(dataArray);
     
     const barCount = 120, gap = 2, barW = (W - gap * (barCount - 1)) / barCount;
-    const maxHeight = H * 0.45;
+    const maxHeight = H * 0.75;
     
     for (let i = 0; i < barCount; i++) {
       const rawVal = dataArray[i];
@@ -1292,8 +1292,8 @@ function setVideoBackground(videoUrl) {
   video.addEventListener('canplay', () => {
     const splash = document.getElementById('splashOverlay');
     splash.classList.add('ready');
-    document.getElementById('splashText').innerText = "CLICK TO ENTER";
-    document.getElementById('splashSubtext').innerText = "GN-GASSY IS READY";
+    document.getElementById('splashText').innerText = "!!!WARNING MUSIC WILL PLAY!!!";
+    document.getElementById('splashSubtext').innerText = "CLICK TO ENTER";
   });
   document.body.insertBefore(video, document.body.firstChild);
   document.body.classList.add('video-bg');
