@@ -201,6 +201,13 @@
       opacity: 0;
       pointer-events: none;
     }
+    
+    /* When UI is hidden, we still want a small hover trigger area */
+    .topbar.ui-hidden.hover-reveal {
+      opacity: 1;
+      pointer-events: auto;
+      transform: translateY(0);
+    }
 
     .topbar-row1 {
       width: 100%;
@@ -1022,13 +1029,14 @@ function toggleVisualizerMode() {
     top.classList.add('ui-hidden');
     tag.classList.add('ui-hidden');
     btn.innerText = "Exit Mode";
-    top.classList.remove('hidden');
+    // We don't remove 'hidden' here, let the hover logic handle it
     document.addEventListener('keydown', exitVizOnEsc);
   } else {
     main.classList.remove('ui-hidden');
     top.classList.remove('ui-hidden');
     tag.classList.remove('ui-hidden');
     btn.innerText = "Visualizer";
+    top.classList.remove('hover-reveal'); // Reset reveal state
     document.removeEventListener('keydown', exitVizOnEsc);
   }
 }
@@ -1038,14 +1046,38 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
 (function() {
   const topbar = document.getElementById('topbar');
   let hideTimer = null, isNear = false;
-  const show = () => { topbar.classList.remove('hidden'); clearTimeout(hideTimer); };
-  const hide = () => { if(!isNear && !isVisualizerMode) topbar.classList.add('hidden'); };
+  
+  const show = () => { 
+    topbar.classList.remove('hidden'); 
+    if (isVisualizerMode) topbar.classList.add('hover-reveal');
+    clearTimeout(hideTimer); 
+  };
+  
+  const hide = () => { 
+    if(!isNear) {
+      topbar.classList.add('hidden'); 
+      if (isVisualizerMode) topbar.classList.remove('hover-reveal');
+    }
+  };
+  
   document.addEventListener('mousemove', (e) => {
-    if (e.clientY < 100) { isNear = true; show(); } 
-    else { isNear = false; if(!topbar.matches(':hover')) { clearTimeout(hideTimer); hideTimer = setTimeout(hide, 2000); } }
+    if (e.clientY < 100) { 
+      isNear = true; 
+      show(); 
+    } else { 
+      isNear = false; 
+      if(!topbar.matches(':hover')) { 
+        clearTimeout(hideTimer); 
+        hideTimer = setTimeout(hide, 2000); 
+      } 
+    }
   });
+  
   topbar.addEventListener('mouseenter', show);
-  topbar.addEventListener('mouseleave', () => { if(!isNear) hideTimer = setTimeout(hide, 1500); });
+  topbar.addEventListener('mouseleave', () => { 
+    if(!isNear) hideTimer = setTimeout(hide, 1500); 
+  });
+  
   hideTimer = setTimeout(hide, 3000);
 })();
 
@@ -1060,23 +1092,35 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
     const W = canvas.width, H = canvas.height;
     ctx.clearRect(0, 0, W, H);
     if (!audioContextReady || !analyser) { drawIdle(ctx, W, H); return; }
+    
     const bufferLength = analyser.frequencyBinCount, dataArray = new Uint8Array(bufferLength);
     analyser.getByteFrequencyData(dataArray);
+    
     const barCount = 120, gap = 2, barW = (W - gap * (barCount - 1)) / barCount;
-    const maxHeight = isVisualizerMode ? H * 0.95 : H * 0.45;
+    const maxHeight = H * 0.45; // Constant height in both modes
+    
     for (let i = 0; i < barCount; i++) {
-      const val = dataArray[i], intensity = val / 255, barH = intensity * maxHeight, x = i * (barW + gap), y = H - barH;
-      const grad = ctx.createLinearGradient(0, y, 0, H);
-      grad.addColorStop(0, `rgba(100, 180, 255, ${0.4 + intensity * 0.6})`);
-      grad.addColorStop(1, `rgba(0, 20, 180, 0.1)`);
-      ctx.fillStyle = grad;
+      const val = dataArray[i];
+      const intensity = val / 255;
+      const barH = intensity * maxHeight;
+      const x = i * (barW + gap);
+      const y = H - barH;
+      
+      // Pure deep blue: rgb(0, 0, 255)
+      // Brightness increases with intensity: val increases component values
+      // Opacity: 0.2 (min) to 0.9 (max)
+      const opacity = 0.2 + (intensity * 0.7);
+      const brightnessBoost = Math.floor(intensity * 100); // Add some light to the blue
+      
+      ctx.fillStyle = `rgba(${brightnessBoost}, ${brightnessBoost}, ${255}, ${opacity})`;
       ctx.fillRect(x, y, barW, barH);
     }
   }
+  
   function drawIdle(ctx, W, H) {
     const barCount = 120, gap = 2, barW = (W - gap * (barCount - 1)) / barCount;
     for (let i = 0; i < barCount; i++) {
-      ctx.fillStyle = 'rgba(0, 40, 150, 0.1)';
+      ctx.fillStyle = 'rgba(0, 0, 150, 0.15)';
       ctx.fillRect(i * (barW + gap), H - 2, barW, 2);
     }
   }
