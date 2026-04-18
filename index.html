@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>GN-Gassy</title>
+  <title>GN-Neon</title>
   <style>
     :root {
       --bg: #000;
@@ -882,7 +882,7 @@
 
   <div class="topbar" id="topbar">
     <div class="topbar-row1">
-      <div class="topbar-brand">GN-Gassy</div>
+      <div class="topbar-brand">GN-Neon</div>
       <nav class="nav" aria-label="Primary">
         <button onclick="load('home')">Home</button>
         <button onclick="load('calc')">Calculators</button>
@@ -917,7 +917,7 @@
   </div>
 
   <main class="page-shell" id="mainContent">
-    <h1 class="site-title">GN-Gassy</h1>
+    <h1 class="site-title">GN-Neon</h1>
     <div id="content">Loading...</div>
   </main>
 
@@ -938,9 +938,9 @@ let isVisualizerMode = false;
 
 // ─── PLAYLIST ────────────────────────────────────────────────────────────────
 const playlist = [
-  'https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/Music/Super%20Mario%20RPG.mp3',
-  'https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/Music/Philly%20Nice%20(B-Side).mp3',
-  'https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/Music/dq%20blizzard.mp3'
+  'https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Neon@main/Music/Super%20Mario%20RPG.mp3',
+  'https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Neon@main/Music/Philly%20Nice%20(B-Side).mp3',
+  'https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Neon@main/Music/dq%20blizzard.mp3'
 ];
 
 const trackMeta = [
@@ -1119,14 +1119,14 @@ const pages = {
     <section class="home-grid">
       <article class="panel hero-panel">
         <h2>Home</h2>
-        <p class="lead">Welcome to GN-Gassy. Take a look at these cats.</p>
+        <p class="lead">Welcome to GN-Neon. Take a look at these cats.</p>
         <div class="image-row">
           <figure class="image-card">
-            <img src="https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/sili2.jpg" alt="Cat image from GN-Gassy">
+            <img src="https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Neon@main/sili2.jpg" alt="Cat image from GN-Neon">
             <span>sili2.jpg</span>
           </figure>
           <figure class="image-card">
-            <img src="https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/sili3.jpg" alt="Cat image from GN-Gassy">
+            <img src="https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Neon@main/sili3.jpg" alt="Cat image from GN-Neon">
             <span>sili3.jpg</span>
           </figure>
         </div>
@@ -1181,7 +1181,7 @@ const pages = {
   about: `
     <section class="panel about-panel">
       <h2>About</h2>
-      <p class="section-copy">This is GN-Gassy. The GN stands for Goober Network. I made this site to bypass lightspeed filter, considering you are here, you should know how I did that. Why? Because I can.<br />
+      <p class="section-copy">This is GN-Neon. The GN stands for Goober Network. I made this site to bypass lightspeed filter, considering you are here, you should know how I did that. Why? Because I can.<br />
       <br />
       I (Neon64) made this site, with suprisingly little help from any AI, it has games for fun, and tools to cheat or get messages across secretly, plus things blocked by Lightspeed or the internet.
       </p>
@@ -1261,7 +1261,7 @@ const notes = [`*** Credits ***\nAll the graphics are taken from the Minecraft w
 
 function showScratchGames() {
   const content = document.getElementById('gamesContent'), gamesMenu = document.querySelector('.games-menu'); if (gamesMenu) gamesMenu.style.display = 'none';
-  content.innerHTML = `<button class="back-button" onclick="load('games')">← Back to Games Menu</button><div class="games-layout"><div class="sideBox"><h3>Controls</h3><div id="gameControls"></div></div><div class="centerBox"><div class="button-row" style="justify-content:center;"><button onclick="prevGame()">◀</button><button onclick="nextGame()">▶</button></div><iframe id="scratchFrame" allowfullscreen title="GN-Gassy Scratch game viewer"></iframe><h3 id="gameTitle"></h3></div><div class="sideBox"><h3>Notes / Credits</h3><div id="gameNotes"></div></div></div>`;
+  content.innerHTML = `<button class="back-button" onclick="load('games')">← Back to Games Menu</button><div class="games-layout"><div class="sideBox"><h3>Controls</h3><div id="gameControls"></div></div><div class="centerBox"><div class="button-row" style="justify-content:center;"><button onclick="prevGame()">◀</button><button onclick="nextGame()">▶</button></div><iframe id="scratchFrame" allowfullscreen title="GN-Neon Scratch game viewer"></iframe><h3 id="gameTitle"></h3></div><div class="sideBox"><h3>Notes / Credits</h3><div id="gameNotes"></div></div></div>`;
   currentIndex = 0; updateGame();
 }
 
@@ -1273,7 +1273,7 @@ function showEmulators() {
 function navigateTo(emulator) {
   const content = document.getElementById('gamesContent');
   if (emulator === 'nes') {
-    content.innerHTML = `<button class="back-button" onclick="showEmulators()">← Back to Emulators</button><div style="width: 100%; max-width: 900px; margin: 2rem auto;"><h2 style="padding: 0 0 1rem 0;">NES Emulator</h2><div style="width:100%;height:500px;max-width:100%; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid #333;"><div id="game"></div></div><script>window.EJS_player='#game';window.EJS_core='nes';window.EJS_gameName='cpu_dummy_reads';window.EJS_color='#0006ff';window.EJS_startOnLoaded=true;window.EJS_pathtodata='https://cdn.jsdelivr.net/gh/EmulatorJS/EmulatorJS@latest/data/';window.EJS_url='https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/Files/Roms/cpu_dummy_reads.nes';<\/script><script src="https://cdn.jsdelivr.net/gh/EmulatorJS/EmulatorJS@latest/data/loader.js"><\/script></div>`;
+    content.innerHTML = `<button class="back-button" onclick="showEmulators()">← Back to Emulators</button><div style="width: 100%; max-width: 900px; margin: 2rem auto;"><h2 style="padding: 0 0 1rem 0;">NES Emulator</h2><div style="width:100%;height:500px;max-width:100%; background: #000; border-radius: 10px; overflow: hidden; border: 1px solid #333;"><div id="game"></div></div><script>window.EJS_player='#game';window.EJS_core='nes';window.EJS_gameName='cpu_dummy_reads';window.EJS_color='#0006ff';window.EJS_startOnLoaded=true;window.EJS_pathtodata='https://cdn.jsdelivr.net/gh/EmulatorJS/EmulatorJS@latest/data/';window.EJS_url='https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Neon@main/Files/Roms/cpu_dummy_reads.nes';<\/script><script src="https://cdn.jsdelivr.net/gh/EmulatorJS/EmulatorJS@latest/data/loader.js"><\/script></div>`;
   } else {
     content.innerHTML = `<div class="wip-container"><h2>${emulator.toUpperCase()} Emulator</h2><p>Work in Progress</p><p style="color: #888; margin-top: 1rem;">This section is currently under development.</p><button class="back-button" onclick="showEmulators()">← Back to Emulators</button></div>`;
   }
@@ -1304,7 +1304,7 @@ function setVideoBackground(videoUrl) {
 
 // ─── BOOT ─────────────────────────────────────────────────────────────────────
 load("home");
-setVideoBackground('https://raw.githubusercontent.com/Neon64makoto/GN-Gassy/main/Files/FlatlineLoop.mp4');
+setVideoBackground('https://raw.githubusercontent.com/Neon64makoto/GN-Neon/main/Files/FlatlineLoop.mp4');
 initMusic();
 </script>
 </body>
