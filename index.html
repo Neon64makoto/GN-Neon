@@ -55,50 +55,23 @@
     }
 
     @keyframes loading-stripes {
-      0% {
-        background-position: 0 0;
-      }
-      100% {
-        background-position: 40px 40px;
-      }
+      0% { background-position: 0 0; }
+      100% { background-position: 40px 40px; }
     }
 
     /* Styled scrollbars */
-    ::-webkit-scrollbar {
-      width: 12px;
-      height: 12px;
-    }
+    ::-webkit-scrollbar { width: 12px; height: 12px; }
+    ::-webkit-scrollbar-track { background: #0a0a0a; }
+    ::-webkit-scrollbar-thumb { background: #0600ff; border-radius: 6px; }
+    ::-webkit-scrollbar-thumb:hover { background: #0044ff; }
+    * { scrollbar-color: #0600ff #0a0a0a; scrollbar-width: thin; }
 
-    ::-webkit-scrollbar-track {
-      background: #0a0a0a;
-    }
-
-    ::-webkit-scrollbar-thumb {
-      background: #0600ff;
-      border-radius: 6px;
-    }
-
-    ::-webkit-scrollbar-thumb:hover {
-      background: #0044ff;
-    }
-
-    /* Firefox scrollbar styling */
-    * {
-      scrollbar-color: #0600ff #0a0a0a;
-      scrollbar-width: thin;
-    }
-
-    body.video-bg {
-      background: none;
-      position: relative;
-    }
+    body.video-bg { background: none; position: relative; }
 
     #videoBg {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       object-fit: cover;
       z-index: -1;
       filter: blur(0px);
@@ -111,10 +84,7 @@
       min-height: 100vh;
     }
 
-    button,
-    input {
-      font: inherit;
-    }
+    button, input { font: inherit; }
 
     button {
       margin: 0.5rem;
@@ -130,7 +100,7 @@
 
     button:hover {
       background: #0044ff;
-      border-color: ##1100ff;
+      border-color: #1100ff;
       box-shadow: 0 0 35px rgba(0, 0, 255, 0.95);
       transform: translateY(-1px);
     }
@@ -145,27 +115,53 @@
       border-radius: 4px;
     }
 
-    input::placeholder {
-      color: #8b8b8b;
-    }
+    input::placeholder { color: #8b8b8b; }
 
+    /* ─── TOP BAR ─────────────────────────────────────────────────────── */
     .topbar {
-      position: sticky;
+      position: fixed;
       top: 0;
-      z-index: 10;
-      background: rgba(17, 17, 17, 0.94);
+      left: 0;
+      right: 0;
+      z-index: 100;
+      background: rgba(17, 17, 17, 0.97);
       border-bottom: 1px solid var(--border);
       backdrop-filter: blur(10px);
-      padding: 1rem 0;
+      padding: 0.75rem 0 0.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0;
+      /* auto-hide: translate up by full height when hidden */
+      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .topbar.hidden {
+      transform: translateY(-100%);
+    }
+
+    /* invisible hover zone at the very top of screen */
+    #topbarTrigger {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      z-index: 101;
+      pointer-events: all;
+    }
+
+    .topbar-row1 {
+      width: 100%;
       display: flex;
       justify-content: center;
       align-items: center;
       gap: 2rem;
+      position: relative;
+      padding: 0 1rem;
     }
 
-    .nav {
-      text-align: center;
-    }
+    .nav { text-align: center; }
 
     .topbar-brand {
       position: absolute;
@@ -181,6 +177,7 @@
       right: 1rem;
       display: flex;
       gap: 0.5rem;
+      align-items: center;
     }
 
     #muteBtn {
@@ -189,11 +186,129 @@
       min-width: 60px;
     }
 
+    /* ─── MUSIC CONTROLS ──────────────────────────────────────────────── */
+    .music-controls {
+      width: 100%;
+      max-width: 780px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.3rem;
+      padding: 0.45rem 1rem 0.6rem;
+      border-top: 1px solid rgba(0, 0, 200, 0.25);
+      margin-top: 0.4rem;
+    }
+
+    .music-info {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      line-height: 1.25;
+    }
+
+    .music-title {
+      font-size: 0.95rem;
+      font-weight: bold;
+      color: #fff;
+      letter-spacing: 0.02em;
+    }
+
+    .music-artist {
+      font-size: 0.8rem;
+      color: #7799ff;
+    }
+
+    .music-btn-row {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+    }
+
+    .music-btn {
+      margin: 0;
+      padding: 0.35rem 0.65rem;
+      font-size: 1rem;
+      background: transparent;
+      border: 1px solid rgba(0, 0, 200, 0.45);
+      border-radius: 6px;
+      color: #aac0ff;
+      cursor: pointer;
+      transition: background 0.15s, box-shadow 0.15s, transform 0.1s;
+      min-width: unset;
+    }
+
+    .music-btn:hover {
+      background: rgba(0, 0, 255, 0.25);
+      box-shadow: 0 0 14px rgba(0, 60, 255, 0.7);
+      transform: translateY(-1px);
+      border-color: #0044ff;
+      color: #fff;
+    }
+
+    .music-btn.active-loop {
+      background: rgba(0, 0, 255, 0.35);
+      border-color: #0044ff;
+      color: #fff;
+      box-shadow: 0 0 10px rgba(0, 80, 255, 0.6);
+    }
+
+    .music-seek-row {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+    }
+
+    .music-time {
+      font-size: 0.78rem;
+      color: #7799ff;
+      white-space: nowrap;
+      min-width: 38px;
+      text-align: center;
+    }
+
+    #seekBar {
+      flex: 1;
+      -webkit-appearance: none;
+      appearance: none;
+      height: 4px;
+      border-radius: 2px;
+      background: linear-gradient(to right, #0044ff 0%, #0044ff 0%, #333 0%);
+      outline: none;
+      cursor: pointer;
+      margin: 0;
+      padding: 0;
+      border: none;
+    }
+
+    #seekBar::-webkit-slider-thumb {
+      -webkit-appearance: none;
+      appearance: none;
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #0044ff;
+      cursor: pointer;
+      box-shadow: 0 0 6px rgba(0, 80, 255, 0.8);
+    }
+
+    #seekBar::-moz-range-thumb {
+      width: 13px;
+      height: 13px;
+      border-radius: 50%;
+      background: #0044ff;
+      cursor: pointer;
+      border: none;
+      box-shadow: 0 0 6px rgba(0, 80, 255, 0.8);
+    }
+
+    /* ─── MAIN CONTENT ────────────────────────────────────────────────── */
     .page-shell {
       width: 100%;
       max-width: 1200px;
       margin: 0 auto;
-      padding: 2rem 1.5rem;
+      /* topbar height is roughly 120px; add padding so content isn't hidden */
+      padding: 8rem 1.5rem 5rem;
     }
 
     .site-title {
@@ -224,6 +339,7 @@
       gap: 1.5rem;
       align-items: start;
     }
+
     .games-panel {
       background: linear-gradient(180deg, rgba(0, 0, 0, 1), rgba(0, 0, 150, 0.5));
       border: 1px solid var(--border);
@@ -236,34 +352,17 @@
       position: relative;
     }
 
-    .games-panel h2 {
-      padding: 2rem 2rem 1rem 2rem;
-      margin: 0;
-    }
-
-    .games-menu {
-      padding: 0 2rem 2rem 2rem;
-      text-align: center;
-    }
-
-    #gamesContent {
-      width: 100%;
-    }
+    .games-panel h2 { padding: 2rem 2rem 1rem 2rem; margin: 0; }
+    .games-menu { padding: 0 2rem 2rem 2rem; text-align: center; }
+    #gamesContent { width: 100%; }
 
     .hero-panel h2,
     .patch-panel h3,
     .calc-panel h2,
     .games-panel h2,
-    .about-panel h2 {
-      margin-top: 0;
-      font-size: 2rem;
-    }
+    .about-panel h2 { margin-top: 0; font-size: 2rem; }
 
-    .lead {
-      color: #d2d2d2;
-      line-height: 1.6;
-      font-size: 1.15rem;
-    }
+    .lead { color: #d2d2d2; line-height: 1.6; font-size: 1.15rem; }
 
     .image-row {
       display: grid;
@@ -279,18 +378,8 @@
       padding: 1rem;
     }
 
-    .image-card img {
-      width: 100%;
-      display: block;
-      border-radius: 8px;
-    }
-
-    .image-card span {
-      display: block;
-      margin-top: 0.75rem;
-      color: var(--muted);
-      font-size: 1rem;
-    }
+    .image-card img { width: 100%; display: block; border-radius: 8px; }
+    .image-card span { display: block; margin-top: 0.75rem; color: var(--muted); font-size: 1rem; }
 
     .patch-panel {
       padding: 2rem;
@@ -301,8 +390,6 @@
       display: flex;
       flex-direction: column;
     }
-
-
 
     .version-chip {
       display: inline-flex;
@@ -324,32 +411,14 @@
       font-size: 0.95rem;
     }
 
-    .patch-list li + li {
-      margin-top: 0.75rem;
-    }
+    .patch-list li + li { margin-top: 0.75rem; }
 
-    .section-copy {
-      color: var(--muted);
-      font-size: 1.1rem;
-    }
+    .section-copy { color: var(--muted); font-size: 1.1rem; }
 
-    .calc-panel,
-    .games-panel,
-    .about-panel {
-      padding: 2rem;
-    }
+    .calc-panel, .games-panel, .about-panel { padding: 2rem; }
 
-    .calc-panel h2,
-    .games-panel h2,
-    .about-panel h2 {
-      font-size: 2rem;
-    }
-
-    .calc-panel h3,
-    .games-panel h3,
-    .about-panel h3 {
-      font-size: 1.5rem;
-    }
+    .calc-panel h2, .games-panel h2, .about-panel h2 { font-size: 2rem; }
+    .calc-panel h3, .games-panel h3, .about-panel h3 { font-size: 1.5rem; }
 
     .button-row {
       display: flex;
@@ -377,9 +446,7 @@
       box-sizing: border-box;
     }
 
-    .games-menu {
-      text-align: center;
-    }
+    .games-menu { text-align: center; }
 
     .games-menu button {
       display: block;
@@ -396,20 +463,9 @@
       padding: 0.7rem 1.2rem;
     }
 
-    .wip-container {
-      text-align: center;
-      padding: 3rem 1rem;
-    }
-
-    .wip-container h2 {
-      font-size: 2rem;
-      margin-bottom: 1rem;
-    }
-
-    .wip-container p {
-      color: #b3b3b3;
-      font-size: 1.2rem;
-    }
+    .wip-container { text-align: center; padding: 3rem 1rem; }
+    .wip-container h2 { font-size: 2rem; margin-bottom: 1rem; }
+    .wip-container p { color: #b3b3b3; font-size: 1.2rem; }
 
     .sideBox {
       width: 20%;
@@ -432,33 +488,18 @@
       flex-shrink: 0;
     }
 
-    .sideBox {
-      flex-shrink: 0;
-    }
+    .sideBox { flex-shrink: 0; }
 
-    #gameControls,
-    #gameNotes {
+    #gameControls, #gameNotes {
       white-space: pre-line;
       color: #ddd;
       line-height: 1.5;
       font-size: 0.95rem;
     }
 
-    .canvas-wrap {
-      position: relative;
-      display: inline-block;
-    }
-
-    #grid {
-      border: 1px solid white;
-      background: #000;
-    }
-
-    #axesLabels {
-      position: absolute;
-      font-size: 0.8em;
-      color: #ccc;
-    }
+    .canvas-wrap { position: relative; display: inline-block; }
+    #grid { border: 1px solid white; background: #000; }
+    #axesLabels { position: absolute; font-size: 0.8em; color: #ccc; }
 
     #graphResults {
       margin-top: 1.5rem;
@@ -476,212 +517,125 @@
       right: 10px;
       color: gray;
       font-size: 0.85rem;
+      z-index: 200;
     }
 
-    /* Responsive scaling */
-    @media (max-width: 1200px) {
-      html,
-      body {
-        font-size: 15px;
-      }
+    /* ─── AUDIO VISUALIZER ────────────────────────────────────────────── */
+    #visualizerCanvas {
+      position: fixed;
+      bottom: 0;
+      left: 0;
+      width: 100%;
+      height: 120px;
+      z-index: 50;
+      pointer-events: none;
+      display: block;
+    }
 
-      .site-title {
-        font-size: 2.5rem;
-      }
+    /* ─── RESPONSIVE ──────────────────────────────────────────────────── */
+    @media (max-width: 1200px) {
+      html, body { font-size: 15px; }
+      .site-title { font-size: 2.5rem; }
     }
 
     @media (max-width: 960px) {
-      html,
-      body {
-        font-size: 14px;
-      }
-
-      .site-title {
-        font-size: 2.2rem;
-      }
-
-      .home-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .games-layout {
-        flex-direction: column;
-      }
-
-      .sideBox,
-      .centerBox {
-        width: 100%;
-      }
-
-      .patch-panel h3 {
-        font-size: 1.3rem;
-      }
-
-      .patch-panel {
-        max-height: 400px;
-      }
-    }
+      html, body { font-size: 14px; }
+      .site-title { font-size: 2.2rem; }
+      .home-grid { grid-template-columns: 1fr; }
+      .games-layout { flex-direction: column; }
+      .sideBox, .centerBox { width: 100%; }
+      .patch-panel h3 { font-size: 1.3rem; }
+      .patch-panel { max-height: 400px; }
     }
 
     @media (max-width: 768px) {
-      html,
-      body {
-        font-size: 13px;
-      }
-
-      .page-shell {
-        padding: 1.5rem 1rem;
-      }
-
-      .site-title {
-        font-size: 1.8rem;
-        margin: 0.5rem 0 1rem;
-      }
-
-      .hero-panel,
-      .patch-panel,
-      .calc-panel,
-      .games-panel,
-      .about-panel {
-        padding: 1.5rem;
-      }
-
-      .patch-panel {
-        max-height: 350px;
-      }
-
-      .topbar {
-        gap: 1rem;
-      }
-
-      .topbar-right {
-        right: 0.5rem;
-      }
-
-      .hero-panel h2,
-      .patch-panel h3,
-      .calc-panel h2,
-      .games-panel h2,
-      .about-panel h2 {
-        font-size: 1.5rem;
-      }
-
-      .image-row {
-        grid-template-columns: 1fr;
-        gap: 0.75rem;
-      }
-
-      .sideBox {
-        padding: 1rem;
-        font-size: 0.9rem;
-      }
-
-      #scratchFrame {
-        height: 50vh;
-      }
-
-      button {
-        margin: 0.4rem;
-        font-size: 1rem;
-        padding: 0.6rem 0.8rem;
-      }
-
-      input {
-        margin: 0.4rem;
-        font-size: 1rem;
-        padding: 0.6rem 0.6rem;
-      }
+      html, body { font-size: 13px; }
+      .page-shell { padding: 9rem 1rem 5rem; }
+      .site-title { font-size: 1.8rem; margin: 0.5rem 0 1rem; }
+      .hero-panel, .patch-panel, .calc-panel, .games-panel, .about-panel { padding: 1.5rem; }
+      .patch-panel { max-height: 350px; }
+      .topbar { gap: 0.5rem; }
+      .topbar-right { right: 0.5rem; }
+      .hero-panel h2, .patch-panel h3, .calc-panel h2, .games-panel h2, .about-panel h2 { font-size: 1.5rem; }
+      .image-row { grid-template-columns: 1fr; gap: 0.75rem; }
+      .sideBox { padding: 1rem; font-size: 0.9rem; }
+      #scratchFrame { height: 50vh; }
+      button { margin: 0.4rem; font-size: 1rem; padding: 0.6rem 0.8rem; }
+      input { margin: 0.4rem; font-size: 1rem; padding: 0.6rem 0.6rem; }
     }
 
     @media (max-width: 480px) {
-      html,
-      body {
-        font-size: 12px;
-      }
-
-      .page-shell {
-        padding: 1rem 0.75rem;
-      }
-
-      .site-title {
-        font-size: 1.5rem;
-        margin: 0.4rem 0 0.8rem;
-      }
-
-      .hero-panel,
-      .patch-panel,
-      .calc-panel,
-      .games-panel,
-      .about-panel {
-        padding: 1rem;
-      }
-
-      .hero-panel h2,
-      .patch-panel h3,
-      .calc-panel h2,
-      .games-panel h2,
-      .about-panel h2 {
-        font-size: 1.3rem;
-      }
-
-      .button-row {
-        gap: 0.5rem;
-        margin-bottom: 1rem;
-      }
-
-      button {
-        margin: 0.3rem;
-        font-size: 0.9rem;
-        padding: 0.5rem 0.6rem;
-      }
-
-      input {
-        margin: 0.3rem;
-        font-size: 0.9rem;
-        padding: 0.5rem 0.5rem;
-      }
-
-      .sideBox {
-        padding: 0.75rem;
-        font-size: 0.85rem;
-      }
-
-      #scratchFrame {
-        height: 40vh;
-      }
-
-      .games-layout {
-        gap: 0.5rem;
-      }
+      html, body { font-size: 12px; }
+      .page-shell { padding: 9rem 0.75rem 5rem; }
+      .site-title { font-size: 1.5rem; margin: 0.4rem 0 0.8rem; }
+      .hero-panel, .patch-panel, .calc-panel, .games-panel, .about-panel { padding: 1rem; }
+      .hero-panel h2, .patch-panel h3, .calc-panel h2, .games-panel h2, .about-panel h2 { font-size: 1.3rem; }
+      .button-row { gap: 0.5rem; margin-bottom: 1rem; }
+      button { margin: 0.3rem; font-size: 0.9rem; padding: 0.5rem 0.6rem; }
+      input { margin: 0.3rem; font-size: 0.9rem; padding: 0.5rem 0.5rem; }
+      .sideBox { padding: 0.75rem; font-size: 0.85rem; }
+      #scratchFrame { height: 40vh; }
+      .games-layout { gap: 0.5rem; }
     }
   </style>
 </head>
 <body>
-  <audio id="bgMusic" style="display:none;"></audio>  <div class="topbar">
-  <div class="topbar-brand">GN-Gassy</div>
-  <nav class="nav" aria-label="Primary">
-    <button onclick="load('home')">Home</button>
-    <button onclick="load('calc')">Calculators</button>
-    <button onclick="load('games')">Games</button>
-    <button onclick="load('about')">About</button>
-  </nav>
-  <div class="topbar-right">
-    <input type="range" id="volumeSlider" min="0" max="100" value="50" style="width: 100px; cursor: pointer;" onchange="setVolume(this.value)" oninput="setVolume(this.value)">
-    <button id="muteBtn" onclick="toggleMute()">Mute</button>
+  <audio id="bgMusic" style="display:none;"></audio>
+
+  <!-- Invisible trigger strip at top of screen to reveal the topbar -->
+  <div id="topbarTrigger"></div>
+
+  <div class="topbar" id="topbar">
+    <!-- Row 1: brand, nav, volume/mute -->
+    <div class="topbar-row1">
+      <div class="topbar-brand">GN-Gassy</div>
+      <nav class="nav" aria-label="Primary">
+        <button onclick="load('home')">Home</button>
+        <button onclick="load('calc')">Calculators</button>
+        <button onclick="load('games')">Games</button>
+        <button onclick="load('about')">About</button>
+      </nav>
+      <div class="topbar-right">
+        <input type="range" id="volumeSlider" min="0" max="100" value="50"
+          style="width: 100px; cursor: pointer;"
+          onchange="setVolume(this.value)" oninput="setVolume(this.value)">
+        <button id="muteBtn" onclick="toggleMute()">Mute</button>
+      </div>
+    </div>
+
+    <!-- Row 2: music controls -->
+    <div class="music-controls">
+      <div class="music-info">
+        <span class="music-title" id="mcTitle">Super Mario RPG</span>
+        <span class="music-artist" id="mcArtist">Yoko Shimomura</span>
+      </div>
+      <div class="music-btn-row">
+        <button class="music-btn" onclick="musicPrev()" title="Previous">&#9664;&#9664;</button>
+        <button class="music-btn" id="mcPlayPause" onclick="musicPlayPause()" title="Play/Pause">&#9646;&#9646;</button>
+        <button class="music-btn" onclick="musicNext()" title="Next">&#9654;&#9654;</button>
+        <button class="music-btn" id="mcLoop" onclick="musicToggleLoop()" title="Loop">&#8635;</button>
+      </div>
+      <div class="music-seek-row">
+        <span class="music-time" id="mcCurrent">0:00</span>
+        <input type="range" id="seekBar" min="0" max="100" value="0"
+          oninput="musicSeek(this.value)" onchange="musicSeek(this.value)">
+        <span class="music-time" id="mcDuration">0:00</span>
+      </div>
+    </div>
   </div>
-</div>
 
-<main class="page-shell">
-  <h1 class="site-title">GN-Gassy</h1>
-  <div id="content">Loading...</div>
-</main>
+  <main class="page-shell">
+    <h1 class="site-title">GN-Gassy</h1>
+    <div id="content">Loading...</div>
+  </main>
 
-<div class="version-tag">
-    v0.37
-</div>
+  <!-- Audio visualizer canvas anchored at bottom -->
+  <canvas id="visualizerCanvas"></canvas>
+
+  <div class="version-tag">v0.37</div>
 
 <script>
-// GN-Gassy behavior: keep the site fast and direct, preserve the original utility feel, and organize page logic clearly.
+// ─── PAGE DATA ────────────────────────────────────────────────────────────────
 
 const pages = {
   home: `
@@ -757,7 +711,6 @@ const pages = {
 
 function load(page) {
   document.getElementById("content").innerHTML = pages[page];
-  // Show games menu when returning to games page
   if (page === 'games') {
     setTimeout(() => {
       const gamesMenu = document.querySelector('.games-menu');
@@ -769,6 +722,8 @@ function load(page) {
 function enterRun(e, fn) {
   if (e.key === "Enter") fn();
 }
+
+// ─── CALCULATORS ──────────────────────────────────────────────────────────────
 
 function showCalc(type) {
   const c = document.getElementById("calcArea");
@@ -837,11 +792,8 @@ function showCalc(type) {
 }
 
 function calcSimple() {
-  try {
-    simpleOut.innerText = eval(simpleInput.value);
-  } catch {
-    simpleOut.innerText = "Error";
-  }
+  try { simpleOut.innerText = eval(simpleInput.value); }
+  catch { simpleOut.innerText = "Error"; }
 }
 
 function volCube() {
@@ -855,83 +807,49 @@ function volSphere() {
 }
 
 function volRect() {
-  const l = parseFloat(recL.value);
-  const w = parseFloat(recW.value);
-  const h = parseFloat(recH.value);
+  const l = parseFloat(recL.value), w = parseFloat(recW.value), h = parseFloat(recH.value);
   rectOut.innerText = !isNaN(l) && !isNaN(w) && !isNaN(h) ? l * w * h : "Invalid";
 }
 
 function volCyl() {
-  const r = parseFloat(cylR.value);
-  const h = parseFloat(cylH.value);
+  const r = parseFloat(cylR.value), h = parseFloat(cylH.value);
   cylOut.innerText = !isNaN(r) && !isNaN(h) ? Math.PI * r * r * h : "Invalid";
 }
 
 function volPyr() {
-  const b = parseFloat(pyrB.value);
-  const h = parseFloat(pyrH.value);
+  const b = parseFloat(pyrB.value), h = parseFloat(pyrH.value);
   pyrOut.innerText = !isNaN(b) && !isNaN(h) ? (b * h) / 3 : "Invalid";
 }
 
 function drawGraph() {
   const canvas = document.getElementById("grid");
   if (!canvas) return;
-
   const ctx = canvas.getContext("2d");
   ctx.fillStyle = "black";
   ctx.fillRect(0, 0, 400, 400);
 
-  const xminVal = parseFloat(xmin.value);
-  const xmaxVal = parseFloat(xmax.value);
-  const yminVal = parseFloat(ymin.value);
-  const ymaxVal = parseFloat(ymax.value);
+  const xminVal = parseFloat(xmin.value), xmaxVal = parseFloat(xmax.value);
+  const yminVal = parseFloat(ymin.value), ymaxVal = parseFloat(ymax.value);
+  const width = 400, height = 400;
 
-  const width = 400;
-  const height = 400;
-
-  ctx.strokeStyle = "#333";
-  ctx.lineWidth = 1;
+  ctx.strokeStyle = "#333"; ctx.lineWidth = 1;
   for (let i = 0; i <= 10; i++) {
-    const x = i * (width / 10);
-    const y = i * (height / 10);
-
-    ctx.beginPath();
-    ctx.moveTo(x, 0);
-    ctx.lineTo(x, height);
-    ctx.stroke();
-
-    ctx.beginPath();
-    ctx.moveTo(0, y);
-    ctx.lineTo(width, y);
-    ctx.stroke();
+    const x = i * (width / 10), y = i * (height / 10);
+    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
+    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
   }
 
-  ctx.strokeStyle = "white";
-  ctx.lineWidth = 2;
-
+  ctx.strokeStyle = "white"; ctx.lineWidth = 2;
   const xZero = (-xminVal / (xmaxVal - xminVal)) * width;
   const yZero = (ymaxVal / (ymaxVal - yminVal)) * height;
+  ctx.beginPath(); ctx.moveTo(xZero, 0); ctx.lineTo(xZero, height); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(0, yZero); ctx.lineTo(width, yZero); ctx.stroke();
 
-  ctx.beginPath();
-  ctx.moveTo(xZero, 0);
-  ctx.lineTo(xZero, height);
-  ctx.stroke();
-
-  ctx.beginPath();
-  ctx.moveTo(0, yZero);
-  ctx.lineTo(width, yZero);
-  ctx.stroke();
-
-  ctx.fillStyle = "white";
-  ctx.font = "10px Arial";
-
+  ctx.fillStyle = "white"; ctx.font = "10px Arial";
   for (let i = 0; i <= 10; i++) {
     const xVal = xminVal + (i / 10) * (xmaxVal - xminVal);
     const yVal = yminVal + (i / 10) * (ymaxVal - yminVal);
-
-    const px = i * (width / 10);
-    const py = height - i * (height / 10);
-
+    const px = i * (width / 10), py = height - i * (height / 10);
     ctx.fillText(xVal.toFixed(1), px, yZero + 10);
     ctx.fillText(yVal.toFixed(1), xZero + 5, py);
   }
@@ -943,47 +861,24 @@ function drawGraph() {
 
   eqs.forEach((expr, i) => {
     if (!expr) return;
-
     expr = expr.replace(/(\d)x/g, "$1*x");
-
     let fn;
-    try {
-      fn = (x) => eval(expr);
-      functions.push({ fn, color: colors[i], expr });
-    } catch {
-      return;
-    }
+    try { fn = (x) => eval(expr); functions.push({ fn, color: colors[i], expr }); }
+    catch { return; }
 
-    ctx.strokeStyle = colors[i];
-    ctx.lineWidth = 2;
-    ctx.beginPath();
-
+    ctx.strokeStyle = colors[i]; ctx.lineWidth = 2; ctx.beginPath();
     let first = true;
-
     for (let px = 0; px <= width; px++) {
       const x = xminVal + (px / width) * (xmaxVal - xminVal);
       let y;
-
-      try {
-        y = fn(x);
-      } catch {
-        continue;
-      }
-
+      try { y = fn(x); } catch { continue; }
       const py = ((ymaxVal - y) / (ymaxVal - yminVal)) * height;
-
       if (py >= 0 && py <= height) {
-        if (first) {
-          ctx.moveTo(px, py);
-          first = false;
-        } else {
-          ctx.lineTo(px, py);
-        }
+        if (first) { ctx.moveTo(px, py); first = false; }
+        else { ctx.lineTo(px, py); }
       }
     }
-
     ctx.stroke();
-
     try {
       const y0 = fn(0);
       resultsHTML += `<p style="color:${colors[i]}">y=${expr} → y(0) = ${y0.toFixed(2)}</p>`;
@@ -993,15 +888,8 @@ function drawGraph() {
   for (let i = 0; i < functions.length; i++) {
     for (let j = i + 1; j < functions.length; j++) {
       for (let x = xminVal; x <= xmaxVal; x += 0.1) {
-        let y1;
-        let y2;
-        try {
-          y1 = functions[i].fn(x);
-          y2 = functions[j].fn(x);
-        } catch {
-          continue;
-        }
-
+        let y1, y2;
+        try { y1 = functions[i].fn(x); y2 = functions[j].fn(x); } catch { continue; }
         if (Math.abs(y1 - y2) < 0.1) {
           resultsHTML += `<p>Intersection ≈ (${x.toFixed(2)}, ${y1.toFixed(2)})</p>`;
           break;
@@ -1017,9 +905,10 @@ function drawGraph() {
     canvas.parentElement.appendChild(div);
     existing = div;
   }
-
   existing.innerHTML = resultsHTML;
 }
+
+// ─── GAMES ────────────────────────────────────────────────────────────────────
 
 const games = [
   "https://turbowarp.org/10128407/embed?addons=pause,fullscreen",
@@ -1161,111 +1050,370 @@ goober.`, `Everything was pretty much made in scratch except for the harpoon and
 let currentIndex = 0;
 let isMuted = false;
 
-// Music playlist (SMRPG -> Philly Nice -> dq blizzard)
+// ─── PLAYLIST & TRACK METADATA ───────────────────────────────────────────────
+
 const playlist = [
   'https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/Music/Super%20Mario%20RPG.mp3',
   'https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/Music/Philly%20Nice%20(B-Side).mp3',
   'https://cdn.jsdelivr.net/gh/Neon64makoto/GN-Gassy@main/Music/dq%20blizzard.mp3'
 ];
+
+const trackMeta = [
+  { title: 'Super Mario RPG',       artist: 'Yoko Shimomura' },
+  { title: 'Philly Nice (B-Side)',   artist: 'Unknown Artist' },
+  { title: 'DQ Blizzard',           artist: 'Unknown Artist' }
+];
+
 let currentTrack = 0;
+let isLooping = false;
+let seekDragging = false;
+
+// ─── WEB AUDIO CONTEXT (for visualizer) ──────────────────────────────────────
+
+let audioCtx = null;
+let analyser = null;
+let sourceNode = null;
+let audioContextReady = false;
+
+function ensureAudioContext() {
+  if (audioContextReady) return;
+  const audio = document.getElementById('bgMusic');
+  if (!audio) return;
+
+  try {
+    audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+    analyser = audioCtx.createAnalyser();
+    analyser.fftSize = 256;
+    analyser.smoothingTimeConstant = 0.82;
+    sourceNode = audioCtx.createMediaElementSource(audio);
+    sourceNode.connect(analyser);
+    analyser.connect(audioCtx.destination);
+    audioContextReady = true;
+  } catch (e) {
+    console.warn('Web Audio API not available:', e);
+  }
+}
+
+// ─── MUSIC INIT ──────────────────────────────────────────────────────────────
 
 function initMusic() {
   const audio = document.getElementById('bgMusic');
   if (!audio) return;
-  
+
   audio.src = playlist[currentTrack];
   audio.volume = 0.5;
-  
-  audio.addEventListener('ended', playNextTrack);
-  
-  audio.play().catch(err => {
-    console.log('Autoplay blocked, waiting for user interaction');
+  audio.loop = false;
+
+  audio.addEventListener('ended', () => {
+    if (isLooping) {
+      audio.currentTime = 0;
+      audio.play().catch(() => {});
+    } else {
+      musicNext();
+    }
+  });
+
+  audio.addEventListener('timeupdate', updateSeekBar);
+  audio.addEventListener('loadedmetadata', updateSeekBar);
+  audio.addEventListener('play', () => {
+    document.getElementById('mcPlayPause').innerHTML = '&#9646;&#9646;';
+    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+  });
+  audio.addEventListener('pause', () => {
+    document.getElementById('mcPlayPause').innerHTML = '&#9654;';
+  });
+
+  updateTrackDisplay();
+
+  audio.play().catch(() => {
+    document.getElementById('mcPlayPause').innerHTML = '&#9654;';
     document.addEventListener('click', playMusicOnce, { once: true });
     document.addEventListener('keydown', playMusicOnce, { once: true });
   });
 }
 
-function playNextTrack() {
+function playMusicOnce() {
+  const audio = document.getElementById('bgMusic');
+  if (audio && audio.paused) {
+    ensureAudioContext();
+    audio.play().catch(() => {});
+  }
+}
+
+function updateTrackDisplay() {
+  const meta = trackMeta[currentTrack];
+  document.getElementById('mcTitle').textContent  = meta.title;
+  document.getElementById('mcArtist').textContent = meta.artist;
+}
+
+function updateSeekBar() {
+  if (seekDragging) return;
+  const audio = document.getElementById('bgMusic');
+  if (!audio || !audio.duration) return;
+
+  const pct = (audio.currentTime / audio.duration) * 100;
+  const bar = document.getElementById('seekBar');
+  bar.value = pct;
+  // Update gradient fill
+  bar.style.background = `linear-gradient(to right, #0044ff ${pct}%, #333 ${pct}%)`;
+
+  document.getElementById('mcCurrent').textContent  = fmtTime(audio.currentTime);
+  document.getElementById('mcDuration').textContent = fmtTime(audio.duration);
+}
+
+function fmtTime(s) {
+  if (!isFinite(s)) return '0:00';
+  const m = Math.floor(s / 60);
+  const sec = Math.floor(s % 60);
+  return `${m}:${sec.toString().padStart(2, '0')}`;
+}
+
+// ─── MUSIC CONTROLS ──────────────────────────────────────────────────────────
+
+function musicPlayPause() {
+  const audio = document.getElementById('bgMusic');
+  if (!audio) return;
+  ensureAudioContext();
+  if (audio.paused) {
+    audio.play().catch(() => {});
+  } else {
+    audio.pause();
+  }
+}
+
+function musicNext() {
   const audio = document.getElementById('bgMusic');
   if (!audio) return;
   currentTrack = (currentTrack + 1) % playlist.length;
   audio.src = playlist[currentTrack];
-  audio.play().catch(err => console.log('Play error:', err));
+  updateTrackDisplay();
+  audio.play().catch(() => {});
 }
 
-function playMusicOnce() {
+function musicPrev() {
   const audio = document.getElementById('bgMusic');
-  if (audio && audio.paused) {
-    audio.play().catch(err => console.log('Play error:', err));
+  if (!audio) return;
+  // If more than 3 seconds in, restart current; otherwise go to previous
+  if (audio.currentTime > 3) {
+    audio.currentTime = 0;
+  } else {
+    currentTrack = (currentTrack - 1 + playlist.length) % playlist.length;
+    audio.src = playlist[currentTrack];
+    updateTrackDisplay();
+    audio.play().catch(() => {});
   }
 }
+
+function musicToggleLoop() {
+  isLooping = !isLooping;
+  const btn = document.getElementById('mcLoop');
+  if (isLooping) {
+    btn.classList.add('active-loop');
+    btn.title = 'Loop: ON';
+  } else {
+    btn.classList.remove('active-loop');
+    btn.title = 'Loop: OFF';
+  }
+}
+
+function musicSeek(value) {
+  const audio = document.getElementById('bgMusic');
+  if (!audio || !audio.duration) return;
+  seekDragging = true;
+  audio.currentTime = (value / 100) * audio.duration;
+  const bar = document.getElementById('seekBar');
+  bar.style.background = `linear-gradient(to right, #0044ff ${value}%, #333 ${value}%)`;
+  document.getElementById('mcCurrent').textContent = fmtTime(audio.currentTime);
+  // Small delay before re-enabling auto updates
+  clearTimeout(musicSeek._t);
+  musicSeek._t = setTimeout(() => { seekDragging = false; }, 300);
+}
+
+// ─── VOLUME / MUTE ────────────────────────────────────────────────────────────
 
 function setVolume(value) {
   const audio = document.getElementById('bgMusic');
-  if (audio) {
-    audio.volume = value / 100;
-  }
+  if (audio) audio.volume = value / 100;
 }
 
 function toggleMute() {
   isMuted = !isMuted;
   const btn = document.getElementById('muteBtn');
-  
+
   if (isMuted) {
     btn.innerText = 'Unmute';
     btn.style.background = '#555';
-    // Mute all audio elements
-    document.querySelectorAll('audio').forEach(el => {
-      el.muted = true;
-    });
-    // Mute iframes by setting volume to 0 via postMessage (for Scratch)
+    document.querySelectorAll('audio').forEach(el => { el.muted = true; });
     document.querySelectorAll('iframe').forEach(el => {
-      try {
-        el.contentWindow.postMessage({type: 'mute'}, '*');
-      } catch (e) {}
+      try { el.contentWindow.postMessage({ type: 'mute' }, '*'); } catch (e) {}
     });
   } else {
     btn.innerText = 'Mute';
     btn.style.background = '#444';
-    // Unmute all audio elements
-    document.querySelectorAll('audio').forEach(el => {
-      el.muted = false;
-    });
-    // Unmute iframes
+    document.querySelectorAll('audio').forEach(el => { el.muted = false; });
     document.querySelectorAll('iframe').forEach(el => {
-      try {
-        el.contentWindow.postMessage({type: 'unmute'}, '*');
-      } catch (e) {}
+      try { el.contentWindow.postMessage({ type: 'unmute' }, '*'); } catch (e) {}
     });
   }
 }
 
+// ─── AUTO-HIDE TOP BAR ───────────────────────────────────────────────────────
+
+(function setupTopbarAutoHide() {
+  const topbar  = document.getElementById('topbar');
+  const trigger = document.getElementById('topbarTrigger');
+  let hideTimer = null;
+
+  function showBar() {
+    topbar.classList.remove('hidden');
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(hideBar, 2800);
+  }
+
+  function hideBar() {
+    topbar.classList.add('hidden');
+  }
+
+  // Show on mouse near top of screen
+  document.addEventListener('mousemove', (e) => {
+    if (e.clientY < 80 || !topbar.classList.contains('hidden')) {
+      showBar();
+    }
+  });
+
+  // Keep visible while hovering the bar itself
+  topbar.addEventListener('mouseenter', () => {
+    clearTimeout(hideTimer);
+    topbar.classList.remove('hidden');
+  });
+
+  topbar.addEventListener('mouseleave', () => {
+    hideTimer = setTimeout(hideBar, 1800);
+  });
+
+  trigger.addEventListener('mouseenter', showBar);
+
+  // Start hidden after a brief delay
+  hideTimer = setTimeout(hideBar, 3500);
+})();
+
+// ─── AUDIO VISUALIZER ────────────────────────────────────────────────────────
+
+(function setupVisualizer() {
+  const canvas = document.getElementById('visualizerCanvas');
+  const ctx    = canvas.getContext('2d');
+
+  function resize() {
+    canvas.width  = window.innerWidth;
+    canvas.height = 120;
+  }
+  resize();
+  window.addEventListener('resize', resize);
+
+  function draw() {
+    requestAnimationFrame(draw);
+
+    const W = canvas.width;
+    const H = canvas.height;
+    ctx.clearRect(0, 0, W, H);
+
+    if (!audioContextReady || !analyser) {
+      // Draw idle flat bars when audio context isn't ready
+      drawIdleBars(ctx, W, H);
+      return;
+    }
+
+    if (audioCtx.state === 'suspended') {
+      drawIdleBars(ctx, W, H);
+      return;
+    }
+
+    const bufferLength = analyser.frequencyBinCount; // 128
+    const dataArray    = new Uint8Array(bufferLength);
+    analyser.getByteFrequencyData(dataArray);
+
+    const barCount = Math.min(bufferLength, 96);
+    const gap      = 2;
+    const barW     = (W - gap * (barCount - 1)) / barCount;
+
+    for (let i = 0; i < barCount; i++) {
+      const value  = dataArray[i];
+      const barH   = (value / 255) * H;
+      const x      = i * (barW + gap);
+      const y      = H - barH;
+
+      // Blue gradient: deep blue at base → bright cyan/white at peak
+      const intensity = value / 255;
+      const r = Math.round(0   + intensity * 80);
+      const g = Math.round(20  + intensity * 160);
+      const b = Math.round(200 + intensity * 55);
+
+      const grad = ctx.createLinearGradient(0, y, 0, H);
+      grad.addColorStop(0,   `rgba(${r}, ${g}, ${b}, 0.95)`);
+      grad.addColorStop(0.6, `rgba(0, 30, 200, 0.75)`);
+      grad.addColorStop(1,   `rgba(0, 0, 120, 0.5)`);
+
+      ctx.fillStyle = grad;
+      ctx.beginPath();
+      ctx.roundRect
+        ? ctx.roundRect(x, y, barW, barH, [2, 2, 0, 0])
+        : ctx.rect(x, y, barW, barH);
+      ctx.fill();
+
+      // Glow on tall bars
+      if (intensity > 0.5) {
+        ctx.shadowBlur  = 8;
+        ctx.shadowColor = `rgba(${r}, ${g}, ${b}, 0.6)`;
+        ctx.fill();
+        ctx.shadowBlur  = 0;
+      }
+    }
+  }
+
+  function drawIdleBars(ctx, W, H) {
+    const barCount = 96;
+    const gap      = 2;
+    const barW     = (W - gap * (barCount - 1)) / barCount;
+    const baseH    = 3;
+
+    for (let i = 0; i < barCount; i++) {
+      const x = i * (barW + gap);
+      ctx.fillStyle = 'rgba(0, 0, 160, 0.35)';
+      ctx.beginPath();
+      ctx.roundRect
+        ? ctx.roundRect(x, H - baseH, barW, baseH, [1, 1, 0, 0])
+        : ctx.rect(x, H - baseH, barW, baseH);
+      ctx.fill();
+    }
+  }
+
+  draw();
+})();
+
+// ─── VIDEO BACKGROUND ────────────────────────────────────────────────────────
+
 function setVideoBackground(videoUrl) {
-  // Show loading animation
   document.body.classList.add('video-loading');
-  
   const video = document.createElement('video');
   video.id = 'videoBg';
   video.autoplay = true;
   video.loop = true;
   video.muted = true;
   video.src = videoUrl;
-  
-  // Remove loading animation when video can play
   video.addEventListener('canplay', () => {
     document.body.classList.remove('video-loading');
   });
-  
   document.body.insertBefore(video, document.body.firstChild);
   document.body.classList.add('video-bg');
 }
 
+// ─── GAMES ────────────────────────────────────────────────────────────────────
+
 function showScratchGames() {
   const content = document.getElementById('gamesContent');
-  // Hide the games menu buttons
   const gamesMenu = document.querySelector('.games-menu');
   if (gamesMenu) gamesMenu.style.display = 'none';
-  
+
   content.innerHTML = `
     <button class="back-button" onclick="load('games')">← Back to Games Menu</button>
     <div class="games-layout">
@@ -1295,10 +1443,9 @@ function showScratchGames() {
 
 function showEmulators() {
   const content = document.getElementById('gamesContent');
-  // Hide the games menu buttons
   const gamesMenu = document.querySelector('.games-menu');
   if (gamesMenu) gamesMenu.style.display = 'none';
-  
+
   content.innerHTML = `
     <button class="back-button" onclick="load('games')">← Back to Games Menu</button>
     <div class="games-menu" style="max-width: 400px; margin: 2rem auto;">
@@ -1312,7 +1459,7 @@ function showEmulators() {
 
 function navigateTo(emulator) {
   const content = document.getElementById('gamesContent');
-  
+
   if (emulator === 'nes') {
     content.innerHTML = `
       <button class="back-button" onclick="showEmulators()">← Back to Emulators</button>
@@ -1363,6 +1510,8 @@ function prevGame() {
   currentIndex = (currentIndex - 1 + games.length) % games.length;
   updateGame();
 }
+
+// ─── BOOT ─────────────────────────────────────────────────────────────────────
 
 load("home");
 setVideoBackground('https://raw.githubusercontent.com/Neon64makoto/GN-Gassy/main/Files/FlatlineLoop.mp4');
