@@ -40,18 +40,42 @@
       transition: opacity 0.5s ease;
     }
 
-    /* Video loading state */
-    body.video-loading::before {
-      content: '';
+    /* Splash / Loading Overlay */
+    #splashOverlay {
       position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
       background: linear-gradient(45deg, #0a0a0a 25%, #1a1a2e 25%, #1a1a2e 50%, #0a0a0a 50%, #0a0a0a 75%, #1a1a2e 75%, #1a1a2e);
       background-size: 40px 40px;
       animation: loading-stripes 0.8s linear infinite;
-      z-index: 999;
+      z-index: 2000;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      cursor: pointer;
+      transition: opacity 0.8s ease, visibility 0.8s;
+    }
+
+    #splashOverlay.fade-out {
+      opacity: 0;
+      visibility: hidden;
+    }
+
+    #splashText {
+      font-size: 2rem;
+      font-weight: bold;
+      color: #fff;
+      text-shadow: 0 0 20px #0044ff;
+      letter-spacing: 4px;
+      text-align: center;
+      pointer-events: none;
+    }
+
+    #splashSubtext {
+      margin-top: 1rem;
+      color: #7799ff;
+      font-size: 1rem;
       pointer-events: none;
     }
 
@@ -101,7 +125,7 @@
       width: 100%;
       height: 100%;
       object-fit: cover;
-      z-index: -2; /* Behind visualizer */
+      z-index: -2;
       filter: blur(0px);
     }
 
@@ -301,7 +325,6 @@
 
     .music-btn:hover {
       background: rgba(0, 0, 255, 0.25);
-      box-shadow: 0 0 14px rgba(0, 60, 255, 0.7);
       transform: translateY(-1px);
       border-color: #0044ff;
       color: #fff;
@@ -311,7 +334,6 @@
       background: rgba(0, 0, 255, 0.35);
       border-color: #0044ff;
       color: #fff;
-      box-shadow: 0 0 10px rgba(0, 80, 255, 0.6);
     }
 
     .music-seek-row {
@@ -660,8 +682,8 @@
       bottom: 0;
       left: 0;
       width: 100%;
-      height: 100vh; /* Full height background */
-      z-index: -1; /* Behind UI, in front of video */
+      height: 100vh;
+      z-index: -1;
       pointer-events: none;
       display: block;
     }
@@ -843,8 +865,14 @@
     }
   </style>
 </head>
-<body>
+<body class="video-bg">
   <audio id="bgMusic" style="display:none;" crossorigin="anonymous"></audio>
+
+  <!-- Click to Enter Splash -->
+  <div id="splashOverlay" onclick="enterSite()">
+    <div id="splashText">LOADING...</div>
+    <div id="splashSubtext">Please wait for the assets to load</div>
+  </div>
 
   <div class="topbar" id="topbar">
     <div class="topbar-row1">
@@ -915,6 +943,17 @@ const trackMeta = [
   { title: 'DQ Blizzard', artist: 'Unknown Artist' }
 ];
 
+// ─── SPLASH LOGIC ────────────────────────────────────────────────────────────
+function enterSite() {
+  const overlay = document.getElementById('splashOverlay');
+  if (overlay.classList.contains('ready')) {
+    overlay.classList.add('fade-out');
+    ensureAudioContext();
+    const audio = document.getElementById('bgMusic');
+    audio.play().catch(e => console.warn("Audio start blocked:", e));
+  }
+}
+
 // ─── AUDIO ENGINE ────────────────────────────────────────────────────────────
 let audioCtx = null, analyser = null, sourceNode = null, audioContextReady = false;
 
@@ -924,7 +963,7 @@ function ensureAudioContext() {
   try {
     audioCtx = new (window.AudioContext || window.webkitAudioContext)();
     analyser = audioCtx.createAnalyser();
-    analyser.fftSize = 128; // Fewer bins = broader, wider bars
+    analyser.fftSize = 512; // Detailed bins
     analyser.smoothingTimeConstant = 0.8;
     sourceNode = audioCtx.createMediaElementSource(audio);
     sourceNode.connect(analyser);
@@ -939,13 +978,9 @@ function initMusic() {
   audio.volume = 0.5;
   audio.addEventListener('ended', () => isLooping ? (audio.currentTime = 0, audio.play()) : musicNext());
   audio.addEventListener('timeupdate', updateSeekBar);
-  audio.addEventListener('play', () => { document.getElementById('mcPlayPause').innerHTML = '&#9646;&#9646;'; ensureAudioContext(); });
+  audio.addEventListener('play', () => { document.getElementById('mcPlayPause').innerHTML = '&#9646;&#9646;'; });
   audio.addEventListener('pause', () => document.getElementById('mcPlayPause').innerHTML = '&#9654;');
   updateTrackDisplay();
-  audio.play().catch(() => {
-    const resume = () => { ensureAudioContext(); audio.play(); document.removeEventListener('click', resume); };
-    document.addEventListener('click', resume);
-  });
 }
 
 function updateTrackDisplay() {
@@ -1027,28 +1062,22 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
     if (!audioContextReady || !analyser) { drawIdle(ctx, W, H); return; }
     const bufferLength = analyser.frequencyBinCount, dataArray = new Uint8Array(bufferLength);
     analyser.getByteFrequencyData(dataArray);
-    const barCount = 48, gap = 8, barW = (W - gap * (barCount - 1)) / barCount;
-    const maxHeight = isVisualizerMode ? H * 0.9 : H * 0.4;
+    const barCount = 120, gap = 2, barW = (W - gap * (barCount - 1)) / barCount;
+    const maxHeight = isVisualizerMode ? H * 0.95 : H * 0.45;
     for (let i = 0; i < barCount; i++) {
       const val = dataArray[i], intensity = val / 255, barH = intensity * maxHeight, x = i * (barW + gap), y = H - barH;
-      const brightness = 150 + (intensity * 105), glow = 5 + (intensity * 25);
-      ctx.shadowBlur = glow; ctx.shadowColor = `rgba(0, 100, 255, ${0.3 + intensity})`;
       const grad = ctx.createLinearGradient(0, y, 0, H);
       grad.addColorStop(0, `rgba(100, 180, 255, ${0.4 + intensity * 0.6})`);
-      grad.addColorStop(1, `rgba(0, 20, 180, 0.2)`);
+      grad.addColorStop(1, `rgba(0, 20, 180, 0.1)`);
       ctx.fillStyle = grad;
-      if (ctx.roundRect) ctx.roundRect(x, y, barW, barH, [4, 4, 0, 0]); else ctx.rect(x, y, barW, barH);
-      ctx.fill();
+      ctx.fillRect(x, y, barW, barH);
     }
-    ctx.shadowBlur = 0;
   }
   function drawIdle(ctx, W, H) {
-    const barCount = 48, gap = 8, barW = (W - gap * (barCount - 1)) / barCount;
+    const barCount = 120, gap = 2, barW = (W - gap * (barCount - 1)) / barCount;
     for (let i = 0; i < barCount; i++) {
-      ctx.fillStyle = 'rgba(0, 40, 150, 0.15)';
-      const x = i * (barW + gap);
-      if (ctx.roundRect) ctx.roundRect(x, H - 4, barW, 4, [1, 1, 0, 0]); else ctx.rect(x, H - 4, barW, 4);
-      ctx.fill();
+      ctx.fillStyle = 'rgba(0, 40, 150, 0.1)';
+      ctx.fillRect(i * (barW + gap), H - 2, barW, 2);
     }
   }
   draw();
@@ -1164,20 +1193,12 @@ function drawGraph() {
   const ctx = canvas.getContext("2d"); ctx.fillStyle = "black"; ctx.fillRect(0, 0, 400, 400);
   const xminVal = parseFloat(xmin.value), xmaxVal = parseFloat(xmax.value), yminVal = parseFloat(ymin.value), ymaxVal = parseFloat(ymax.value), width = 400, height = 400;
   ctx.strokeStyle = "#333"; ctx.lineWidth = 1;
-  for (let i = 0; i <= 10; i++) {
-    const x = i * (width / 10), y = i * (height / 10);
-    ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke();
-    ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke();
-  }
+  for (let i = 0; i <= 10; i++) { const x = i * (width / 10), y = i * (height / 10); ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, height); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(width, y); ctx.stroke(); }
   ctx.strokeStyle = "white"; ctx.lineWidth = 2;
   const xZero = (-xminVal / (xmaxVal - xminVal)) * width, yZero = (ymaxVal / (ymaxVal - yminVal)) * height;
-  ctx.beginPath(); ctx.moveTo(xZero, 0); ctx.lineTo(xZero, height); ctx.stroke();
-  ctx.beginPath(); ctx.moveTo(0, yZero); ctx.lineTo(width, yZero); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(xZero, 0); ctx.lineTo(xZero, height); ctx.stroke(); ctx.beginPath(); ctx.moveTo(0, yZero); ctx.lineTo(width, yZero); ctx.stroke();
   ctx.fillStyle = "white"; ctx.font = "10px Arial";
-  for (let i = 0; i <= 10; i++) {
-    const xVal = xminVal + (i / 10) * (xmaxVal - xminVal), yVal = yminVal + (i / 10) * (ymaxVal - yminVal), px = i * (width / 10), py = height - i * (height / 10);
-    ctx.fillText(xVal.toFixed(1), px, yZero + 10); ctx.fillText(yVal.toFixed(1), xZero + 5, py);
-  }
+  for (let i = 0; i <= 10; i++) { const xVal = xminVal + (i / 10) * (xmaxVal - xminVal), yVal = yminVal + (i / 10) * (ymaxVal - yminVal), px = i * (width / 10), py = height - i * (height / 10); ctx.fillText(xVal.toFixed(1), px, yZero + 10); ctx.fillText(yVal.toFixed(1), xZero + 5, py); }
   const eqs = [eq1.value, eq2.value, eq3.value, eq4.value, eq5.value], colors = ["red", "cyan", "lime", "yellow", "orange"];
   let resultsHTML = "<h3>Results</h3>"; const functions = [];
   eqs.forEach((expr, i) => {
@@ -1185,12 +1206,7 @@ function drawGraph() {
     let fn; try { fn = (x) => eval(expr); functions.push({ fn, color: colors[i], expr }); } catch { return; }
     ctx.strokeStyle = colors[i]; ctx.lineWidth = 2; ctx.beginPath();
     let first = true;
-    for (let px = 0; px <= width; px++) {
-      const x = xminVal + (px / width) * (xmaxVal - xminVal);
-      let y; try { y = fn(x); } catch { continue; }
-      const py = ((ymaxVal - y) / (ymaxVal - yminVal)) * height;
-      if (py >= 0 && py <= height) { if (first) { ctx.moveTo(px, py); first = false; } else { ctx.lineTo(px, py); } }
-    }
+    for (let px = 0; px <= width; px++) { const x = xminVal + (px / width) * (xmaxVal - xminVal); let y; try { y = fn(x); } catch { continue; } const py = ((ymaxVal - y) / (ymaxVal - yminVal)) * height; if (py >= 0 && py <= height) { if (first) { ctx.moveTo(px, py); first = false; } else { ctx.lineTo(px, py); } } }
     ctx.stroke();
     try { const y0 = fn(0); resultsHTML += `<p style="color:${colors[i]}">y=${expr} → y(0) = ${y0.toFixed(2)}</p>`; } catch {}
   });
@@ -1202,9 +1218,7 @@ function drawGraph() {
       }
     }
   }
-  let existing = document.getElementById("graphResults");
-  if (!existing) { const div = document.createElement("div"); div.id = "graphResults"; canvas.parentElement.appendChild(div); existing = div; }
-  existing.innerHTML = resultsHTML;
+  let existing = document.getElementById("graphResults"); if (!existing) { const div = document.createElement("div"); div.id = "graphResults"; canvas.parentElement.appendChild(div); existing = div; } existing.innerHTML = resultsHTML;
 }
 
 const games = ["https://turbowarp.org/10128407/embed?addons=pause,fullscreen", "https://turbowarp.org/1143765424/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/1075310827/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/941803602/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/973637218/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/883776962/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/898492644/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/916303075/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/978483855/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/959847748/embed?addons=pause,fullscreen&fps=60"];
@@ -1213,17 +1227,13 @@ const controls = [`Modding Guide: ▶️ https://youtu.be/PexNsUvqD5w\n[1 to 9] 
 const notes = [`*** Credits ***\nAll the graphics are taken from the Minecraft wiki page and have not been created by me. I have rescaled them and broken them up to make the game work, but that is it at present.\n\nORIGNAL PROJECT MADE BY GRIFFPATCH ON SCRATCH, NOT ME:\n\nCheck him out he does great stuf, https://scratch.mit.edu/users/griffpatch/`, `The game is based on this video by the way:\n\nhttps://youtu.be/2Gby1XQ4Z2M?feature=shared`, `Don't gamble in real life, also this technically is not correct, and if you do it quick enough you can easily break most of this.\n\nThe special codes are:\n\nL E O\n\nZ A C H\n\nN F S M W\n`, `Not much to add, I could have done a better job with the randomization of everything, but I am not gonna be working on this any further.`, `<b>!!!VOLUME WARNING!!!</b>\n\nI made all of this in scratch.\n\nFor now there is a max of 15 goobers on screen at a time.\n`, `Added a normal and hard mode to the game, plus a secret Most Wanted mode.\n\nI made most of these sprites in scratch and the ships were made in Pixil Art\n\nlink to my Pixil Art profile here: https://www.pixilart.com/neon64makoto\n\nArcade cabinet overlay here:https://forums.launchbox-app.com/files/file/2726-generic-arcade-1080p-overlay/    (i used the 4th one)\n\nMost sounds were found here:\nhttps://pixabay.com/sound-effects/search/arcade/\nhttps://downloads.khinsider.com/game-soundtracks/album/five-nights-at-freddy-s-fnaf-2-sfx\n\nPlus this for hard mode music: https://www.youtube.com/watch?v=R6ZHn2XEbGk\n\nAnd this for <b>****MW****</b> mode:\nhttps://www.youtube.com/watch?v=kG5LF_QS1JU`, `I stole all the assets I obviously stole and made the assets I obviously made. Not much else.\n\nSecret code this time is:\n\nD R G`, `I made everything except for the crosshair which you can find here: https://nohat.cc/f/red-crosshair-png-transparent/m2i8N4N4K9Z5A0K9-201907232239.html\nAnd the asteroid is here: https://assets.website-files.com/62cc3ac38e15ba20d4ff98f5/62d908ddf4c208aa8b54b424_asteroid-8bit-picture.png\n\nEverything else was either made in scratch or made on my Pixil art profile\n\nLink to my Pixil art profile: https://www.pixilart.com/neon64makoto/gallery\n\n\n\n\ngoober.`, `Everything was pretty much made in scratch except for the harpoon and boat clip art. Also the fish are just a part of scratch's sprite library.`, `<b>!!!VOLUME WARNING!!!</b>`];
 
 function showScratchGames() {
-  const content = document.getElementById('gamesContent');
-  const gamesMenu = document.querySelector('.games-menu');
-  if (gamesMenu) gamesMenu.style.display = 'none';
+  const content = document.getElementById('gamesContent'), gamesMenu = document.querySelector('.games-menu'); if (gamesMenu) gamesMenu.style.display = 'none';
   content.innerHTML = `<button class="back-button" onclick="load('games')">← Back to Games Menu</button><div class="games-layout"><div class="sideBox"><h3>Controls</h3><div id="gameControls"></div></div><div class="centerBox"><div class="button-row" style="justify-content:center;"><button onclick="prevGame()">◀</button><button onclick="nextGame()">▶</button></div><iframe id="scratchFrame" allowfullscreen title="GN-Gassy Scratch game viewer"></iframe><h3 id="gameTitle"></h3></div><div class="sideBox"><h3>Notes / Credits</h3><div id="gameNotes"></div></div></div>`;
   currentIndex = 0; updateGame();
 }
 
 function showEmulators() {
-  const content = document.getElementById('gamesContent');
-  const gamesMenu = document.querySelector('.games-menu');
-  if (gamesMenu) gamesMenu.style.display = 'none';
+  const content = document.getElementById('gamesContent'), gamesMenu = document.querySelector('.games-menu'); if (gamesMenu) gamesMenu.style.display = 'none';
   content.innerHTML = `<button class="back-button" onclick="load('games')">← Back to Games Menu</button><div class="games-menu" style="max-width: 400px; margin: 2rem auto;"><h3>Select Emulator</h3><button onclick="navigateTo('nes')">NES</button><button onclick="navigateTo('snes')">SNES</button><button onclick="navigateTo('genesis')">Genesis</button></div>`;
 }
 
@@ -1247,10 +1257,14 @@ function nextGame() { currentIndex = (currentIndex + 1) % games.length; updateGa
 function prevGame() { currentIndex = (currentIndex - 1 + games.length) % games.length; updateGame(); }
 
 function setVideoBackground(videoUrl) {
-  document.body.classList.add('video-loading');
   const video = document.createElement('video');
   video.id = 'videoBg'; video.autoplay = true; video.loop = true; video.muted = true; video.src = videoUrl;
-  video.addEventListener('canplay', () => document.body.classList.remove('video-loading'));
+  video.addEventListener('canplay', () => {
+    const splash = document.getElementById('splashOverlay');
+    splash.classList.add('ready');
+    document.getElementById('splashText').innerText = "CLICK TO ENTER";
+    document.getElementById('splashSubtext').innerText = "GN-GASSY IS READY";
+  });
   document.body.insertBefore(video, document.body.firstChild);
   document.body.classList.add('video-bg');
 }
