@@ -360,7 +360,7 @@
 
     #scratchFrame {
       width: 100%;
-      height: 60vh;
+      height: 70vh;
       border: none;
       border-radius: 10px;
       background: #000;
@@ -657,8 +657,7 @@
   </style>
 </head>
 <body>
-  <audio id="bgMusic" autoplay loop style="display:none;"></audio>
-  <div class="topbar">
+  <audio id="bgMusic" style="display:none;"></audio>  <div class="topbar">
   <div class="topbar-brand">GN-Gassy</div>
   <nav class="nav" aria-label="Primary">
     <button onclick="load('home')">Home</button>
@@ -1175,22 +1174,23 @@ function initMusic() {
   if (!audio) return;
   
   audio.src = playlist[currentTrack];
-  audio.volume = 0.5; // 50% volume
+  audio.volume = 0.5;
   
-  // Handle track ending
-  audio.addEventListener('ended', () => {
-    currentTrack = (currentTrack + 1) % playlist.length;
-    audio.src = playlist[currentTrack];
-    audio.play().catch(err => console.log('Play error:', err));
-  }, { once: false });
+  audio.addEventListener('ended', playNextTrack);
   
-  // Try to play immediately
   audio.play().catch(err => {
     console.log('Autoplay blocked, waiting for user interaction');
-    // Add one-time listener for user interaction
     document.addEventListener('click', playMusicOnce, { once: true });
     document.addEventListener('keydown', playMusicOnce, { once: true });
   });
+}
+
+function playNextTrack() {
+  const audio = document.getElementById('bgMusic');
+  if (!audio) return;
+  currentTrack = (currentTrack + 1) % playlist.length;
+  audio.src = playlist[currentTrack];
+  audio.play().catch(err => console.log('Play error:', err));
 }
 
 function playMusicOnce() {
@@ -1202,7 +1202,7 @@ function playMusicOnce() {
 
 function setVolume(value) {
   const audio = document.getElementById('bgMusic');
-  if (audio && !isMuted) {
+  if (audio) {
     audio.volume = value / 100;
   }
 }
@@ -1275,17 +1275,18 @@ function showScratchGames() {
       </div>
 
       <div class="centerBox">
+        <div class="button-row" style="justify-content:center;">
+          <button onclick="prevGame()">◀</button>
+          <button onclick="nextGame()">▶</button>
+        </div>
         <iframe id="scratchFrame" allowfullscreen title="GN-Gassy Scratch game viewer"></iframe>
         <h3 id="gameTitle"></h3>
       </div>
+
       <div class="sideBox">
         <h3>Notes / Credits</h3>
         <div id="gameNotes"></div>
       </div>
-    </div>
-    <div class="button-row" style="justify-content:center;">
-          <button onclick="prevGame()">◀</button>
-          <button onclick="nextGame()">▶</button>
     </div>
   `;
   currentIndex = 0;
