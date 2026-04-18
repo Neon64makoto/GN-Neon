@@ -132,23 +132,12 @@
       flex-direction: column;
       align-items: center;
       gap: 0;
-      /* auto-hide: translate up by full height when hidden */
-      transition: transform 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      /* auto-hide */
+      transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
     }
 
     .topbar.hidden {
       transform: translateY(-100%);
-    }
-
-    /* invisible hover zone at the very top of screen */
-    #topbarTrigger {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 6px;
-      z-index: 101;
-      pointer-events: all;
     }
 
     .topbar-row1 {
@@ -307,7 +296,6 @@
       width: 100%;
       max-width: 1200px;
       margin: 0 auto;
-      /* topbar height is roughly 120px; add padding so content isn't hidden */
       padding: 8rem 1.5rem 5rem;
     }
 
@@ -580,10 +568,7 @@
   </style>
 </head>
 <body>
-  <audio id="bgMusic" style="display:none;"></audio>
-
-  <!-- Invisible trigger strip at top of screen to reveal the topbar -->
-  <div id="topbarTrigger"></div>
+  <audio id="bgMusic" style="display:none;" crossorigin="anonymous"></audio>
 
   <div class="topbar" id="topbar">
     <!-- Row 1: brand, nav, volume/mute -->
@@ -1068,7 +1053,7 @@ let currentTrack = 0;
 let isLooping = false;
 let seekDragging = false;
 
-// ─── WEB AUDIO CONTEXT (for visualizer) ──────────────────────────────────────
+// ─── WEB AUDIO CONTEXT ───────────────────────────────────────────────────────
 
 let audioCtx = null;
 let analyser = null;
@@ -1076,7 +1061,10 @@ let sourceNode = null;
 let audioContextReady = false;
 
 function ensureAudioContext() {
-  if (audioContextReady) return;
+  if (audioContextReady) {
+    if (audioCtx.state === 'suspended') audioCtx.resume();
+    return;
+  }
   const audio = document.getElementById('bgMusic');
   if (!audio) return;
 
@@ -1089,8 +1077,9 @@ function ensureAudioContext() {
     sourceNode.connect(analyser);
     analyser.connect(audioCtx.destination);
     audioContextReady = true;
+    console.log('Audio Context Ready');
   } catch (e) {
-    console.warn('Web Audio API not available:', e);
+    console.warn('Web Audio API error:', e);
   }
 }
 
@@ -1117,7 +1106,7 @@ function initMusic() {
   audio.addEventListener('loadedmetadata', updateSeekBar);
   audio.addEventListener('play', () => {
     document.getElementById('mcPlayPause').innerHTML = '&#9646;&#9646;';
-    if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+    ensureAudioContext();
   });
   audio.addEventListener('pause', () => {
     document.getElementById('mcPlayPause').innerHTML = '&#9654;';
@@ -1125,19 +1114,19 @@ function initMusic() {
 
   updateTrackDisplay();
 
+  // Try auto-play
   audio.play().catch(() => {
     document.getElementById('mcPlayPause').innerHTML = '&#9654;';
-    document.addEventListener('click', playMusicOnce, { once: true });
-    document.addEventListener('keydown', playMusicOnce, { once: true });
+    // Resume on any interaction
+    const resume = () => {
+      ensureAudioContext();
+      audio.play().catch(() => {});
+      document.removeEventListener('click', resume);
+      document.removeEventListener('keydown', resume);
+    };
+    document.addEventListener('click', resume);
+    document.addEventListener('keydown', resume);
   });
-}
-
-function playMusicOnce() {
-  const audio = document.getElementById('bgMusic');
-  if (audio && audio.paused) {
-    ensureAudioContext();
-    audio.play().catch(() => {});
-  }
 }
 
 function updateTrackDisplay() {
@@ -1154,7 +1143,6 @@ function updateSeekBar() {
   const pct = (audio.currentTime / audio.duration) * 100;
   const bar = document.getElementById('seekBar');
   bar.value = pct;
-  // Update gradient fill
   bar.style.background = `linear-gradient(to right, #0044ff ${pct}%, #333 ${pct}%)`;
 
   document.getElementById('mcCurrent').textContent  = fmtTime(audio.currentTime);
@@ -1193,7 +1181,6 @@ function musicNext() {
 function musicPrev() {
   const audio = document.getElementById('bgMusic');
   if (!audio) return;
-  // If more than 3 seconds in, restart current; otherwise go to previous
   if (audio.currentTime > 3) {
     audio.currentTime = 0;
   } else {
@@ -1224,7 +1211,6 @@ function musicSeek(value) {
   const bar = document.getElementById('seekBar');
   bar.style.background = `linear-gradient(to right, #0044ff ${value}%, #333 ${value}%)`;
   document.getElementById('mcCurrent').textContent = fmtTime(audio.currentTime);
-  // Small delay before re-enabling auto updates
   clearTimeout(musicSeek._t);
   musicSeek._t = setTimeout(() => { seekDragging = false; }, 300);
 }
@@ -1260,41 +1246,49 @@ function toggleMute() {
 // ─── AUTO-HIDE TOP BAR ───────────────────────────────────────────────────────
 
 (function setupTopbarAutoHide() {
-  const topbar  = document.getElementById('topbar');
-  const trigger = document.getElementById('topbarTrigger');
+  const topbar = document.getElementById('topbar');
   let hideTimer = null;
+  let isMouseNearTop = false;
 
   function showBar() {
     topbar.classList.remove('hidden');
     clearTimeout(hideTimer);
-    hideTimer = setTimeout(hideBar, 2800);
   }
 
   function hideBar() {
-    topbar.classList.add('hidden');
+    // Only hide if mouse is NOT near the top and NOT over the bar
+    if (!isMouseNearTop) {
+      topbar.classList.add('hidden');
+    }
   }
 
-  // Show on mouse near top of screen
   document.addEventListener('mousemove', (e) => {
-    if (e.clientY < 80 || !topbar.classList.contains('hidden')) {
+    // If mouse is in top 100px of screen
+    if (e.clientY < 100) {
+      isMouseNearTop = true;
       showBar();
+    } else {
+      isMouseNearTop = false;
+      // If we just moved away, start the hide timer
+      if (!topbar.classList.contains('hidden') && !topbar.matches(':hover')) {
+        clearTimeout(hideTimer);
+        hideTimer = setTimeout(hideBar, 2000);
+      }
     }
   });
 
-  // Keep visible while hovering the bar itself
   topbar.addEventListener('mouseenter', () => {
-    clearTimeout(hideTimer);
-    topbar.classList.remove('hidden');
+    showBar();
   });
 
   topbar.addEventListener('mouseleave', () => {
-    hideTimer = setTimeout(hideBar, 1800);
+    if (!isMouseNearTop) {
+      hideTimer = setTimeout(hideBar, 1500);
+    }
   });
 
-  trigger.addEventListener('mouseenter', showBar);
-
-  // Start hidden after a brief delay
-  hideTimer = setTimeout(hideBar, 3500);
+  // Initial hide
+  hideTimer = setTimeout(hideBar, 3000);
 })();
 
 // ─── AUDIO VISUALIZER ────────────────────────────────────────────────────────
@@ -1318,17 +1312,11 @@ function toggleMute() {
     ctx.clearRect(0, 0, W, H);
 
     if (!audioContextReady || !analyser) {
-      // Draw idle flat bars when audio context isn't ready
       drawIdleBars(ctx, W, H);
       return;
     }
 
-    if (audioCtx.state === 'suspended') {
-      drawIdleBars(ctx, W, H);
-      return;
-    }
-
-    const bufferLength = analyser.frequencyBinCount; // 128
+    const bufferLength = analyser.frequencyBinCount;
     const dataArray    = new Uint8Array(bufferLength);
     analyser.getByteFrequencyData(dataArray);
 
@@ -1342,7 +1330,6 @@ function toggleMute() {
       const x      = i * (barW + gap);
       const y      = H - barH;
 
-      // Blue gradient: deep blue at base → bright cyan/white at peak
       const intensity = value / 255;
       const r = Math.round(0   + intensity * 80);
       const g = Math.round(20  + intensity * 160);
@@ -1355,12 +1342,10 @@ function toggleMute() {
 
       ctx.fillStyle = grad;
       ctx.beginPath();
-      ctx.roundRect
-        ? ctx.roundRect(x, y, barW, barH, [2, 2, 0, 0])
-        : ctx.rect(x, y, barW, barH);
+      if (ctx.roundRect) ctx.roundRect(x, y, barW, barH, [2, 2, 0, 0]);
+      else ctx.rect(x, y, barW, barH);
       ctx.fill();
 
-      // Glow on tall bars
       if (intensity > 0.5) {
         ctx.shadowBlur  = 8;
         ctx.shadowColor = `rgba(${r}, ${g}, ${b}, 0.6)`;
@@ -1375,18 +1360,15 @@ function toggleMute() {
     const gap      = 2;
     const barW     = (W - gap * (barCount - 1)) / barCount;
     const baseH    = 3;
-
     for (let i = 0; i < barCount; i++) {
       const x = i * (barW + gap);
       ctx.fillStyle = 'rgba(0, 0, 160, 0.35)';
       ctx.beginPath();
-      ctx.roundRect
-        ? ctx.roundRect(x, H - baseH, barW, baseH, [1, 1, 0, 0])
-        : ctx.rect(x, H - baseH, barW, baseH);
+      if (ctx.roundRect) ctx.roundRect(x, H - baseH, barW, baseH, [1, 1, 0, 0]);
+      else ctx.rect(x, H - baseH, barW, baseH);
       ctx.fill();
     }
   }
-
   draw();
 })();
 
