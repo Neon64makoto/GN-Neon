@@ -13,10 +13,10 @@
       --border-strong: #444;
       --text: #fff;
       --muted: #b3b3b3;
-      --neon-blue: #ff0000;
-      --neon-blue-soft: rgba(255, 68, 0, 0.15);
-      --neon-blue-lighter: #ff0000;
-      --neon-blue-lighter2: #ff0000;
+      --neon-blue: #0044ff;
+      --neon-blue-soft: rgba(0, 68, 255, 0.15);
+      --neon-blue-lighter: #7799ff;
+      --neon-blue-lighter2: #aac0ff;
       --shadow: 0 14px 32px rgba(0, 0, 0, 0.32);
       --panel-size: 140px;
     }
@@ -1056,6 +1056,7 @@
       <button onclick="load('creations')">Creations</button>
       <button onclick="load('about')">About</button>
       <button onclick="toggleVisualizerMode()" id="vizModeBtn" style="border: 1px solid var(--neon-blue); background: var(--neon-blue-soft);">Visualizer</button>
+      <button onclick="load('settings')" style="margin-top: auto;">Settings</button>
     </nav>
   </div>
 
@@ -1102,6 +1103,13 @@ let currentTrack = 0;
 let isLooping = false;
 let seekDragging = false;
 let isVisualizerMode = false;
+
+const DEFAULT_COLORS = {
+  '--neon-blue': '#0044ff',
+  '--neon-blue-soft': 'rgba(0, 68, 255, 0.15)',
+  '--neon-blue-lighter': '#7799ff',
+  '--neon-blue-lighter2': '#aac0ff'
+};
 
 // ─── PLAYLIST ────────────────────────────────────────────────────────────────
 const playlist = [
@@ -1183,12 +1191,47 @@ function ensureAudioContext() {
 
 function initMusic() {
   const audio = document.getElementById('bgMusic');
+  
+  // Load saved music state
+  const savedTrack = localStorage.getItem('gn_neon_track');
+  const savedTime = localStorage.getItem('gn_neon_time');
+  const savedVolume = localStorage.getItem('gn_neon_volume');
+  const savedMute = localStorage.getItem('gn_neon_mute');
+
+  if (savedTrack !== null) currentTrack = parseInt(savedTrack);
   audio.src = playlist[currentTrack];
-  audio.volume = 0.5;
+  
+  if (savedVolume !== null) {
+    audio.volume = parseFloat(savedVolume);
+    document.getElementById('volumeSlider').value = audio.volume * 100;
+    document.getElementById('volumeInput').value = Math.round(audio.volume * 100);
+  } else {
+    audio.volume = 0.5;
+  }
+
+  if (savedMute === 'true') {
+    isMuted = true;
+    audio.muted = true;
+    document.getElementById('muteBtn').innerText = 'Unmute';
+  }
+
+  if (savedTime !== null) {
+    audio.addEventListener('loadedmetadata', () => {
+      audio.currentTime = parseFloat(savedTime);
+    }, { once: true });
+  }
+
   audio.addEventListener('ended', () => isLooping ? (audio.currentTime = 0, audio.play()) : musicNext());
-  audio.addEventListener('timeupdate', updateSeekBar);
-  audio.addEventListener('play', () => { document.getElementById('mcPlayPause').innerHTML = '&#9646;&#9646;'; });
+  audio.addEventListener('timeupdate', () => {
+    updateSeekBar();
+    localStorage.setItem('gn_neon_time', audio.currentTime);
+  });
+  audio.addEventListener('play', () => { 
+    document.getElementById('mcPlayPause').innerHTML = '&#9646;&#9646;';
+    localStorage.setItem('gn_neon_track', currentTrack);
+  });
   audio.addEventListener('pause', () => document.getElementById('mcPlayPause').innerHTML = '&#9654;');
+  
   updateTrackDisplay();
 }
 
@@ -1217,10 +1260,12 @@ function musicToggleLoop() { isLooping = !isLooping; document.getElementById('mc
 function musicSeek(v) { const a = document.getElementById('bgMusic'); seekDragging = true; a.currentTime = (v/100)*a.duration; setTimeout(()=>seekDragging=false, 200); }
 function setVolume(v) {
   const audio = document.getElementById('bgMusic');
-  audio.volume = Math.min(v / 100, 1.0);
+  audio.volume = v / 100;
   document.getElementById('volumeInput').value = v;
   document.getElementById('volumeSlider').value = v;
   if (v > 0) { isMuted = false; document.getElementById('muteBtn').innerText = "Mute"; }
+  localStorage.setItem('gn_neon_volume', audio.volume);
+  localStorage.setItem('gn_neon_mute', isMuted);
 }
 function setVolumeFromInput(v) {
   let val = parseInt(v);
@@ -1229,7 +1274,13 @@ function setVolumeFromInput(v) {
   if (val < 0) val = 0;
   setVolume(val);
 }
-function toggleMute() { isMuted = !isMuted; const b = document.getElementById('muteBtn'); b.innerText = isMuted ? 'Unmute' : 'Mute'; document.querySelectorAll('audio').forEach(a => a.muted = isMuted); }
+function toggleMute() { 
+  isMuted = !isMuted; 
+  const b = document.getElementById('muteBtn'); 
+  b.innerText = isMuted ? 'Unmute' : 'Mute'; 
+  document.querySelectorAll('audio').forEach(a => a.muted = isMuted);
+  localStorage.setItem('gn_neon_mute', isMuted);
+}
 
 // ─── VISUALIZER MODE ──────────────────────────────────────────────────────────
 function toggleVisualizerMode() {
@@ -1384,7 +1435,57 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
 })();
 
 // ─── PAGES DATA ──────────────────────────────────────────────────────────────
+function applySavedColors() {
+  const saved = localStorage.getItem('gn_neon_colors');
+  if (saved) {
+    const colors = JSON.parse(saved);
+    for (const [key, val] of Object.entries(colors)) {
+      document.documentElement.style.setProperty(key, val);
+    }
+  }
+}
+
+function updateColor(key, val) {
+  document.documentElement.style.setProperty(key, val);
+  const saved = localStorage.getItem('gn_neon_colors');
+  const colors = saved ? JSON.parse(saved) : { ...DEFAULT_COLORS };
+  colors[key] = val;
+  localStorage.setItem('gn_neon_colors', JSON.stringify(colors));
+}
+
+function resetColors() {
+  for (const [key, val] of Object.entries(DEFAULT_COLORS)) {
+    document.documentElement.style.setProperty(key, val);
+  }
+  localStorage.removeItem('gn_neon_colors');
+  load('settings');
+}
+
 const pages = {
+  settings: `
+    <section class="panel">
+      <h2>Settings</h2>
+      <div style="display: flex; flex-direction: column; gap: 1.5rem; margin-top: 1rem;">
+        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
+          <span>Main Neon Color</span>
+          <input type="color" value="${getComputedStyle(document.documentElement).getPropertyValue('--neon-blue').trim()}" onchange="updateColor('--neon-blue', this.value)">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
+          <span>Lighter Blue Text</span>
+          <input type="color" value="${getComputedStyle(document.documentElement).getPropertyValue('--neon-blue-lighter').trim()}" onchange="updateColor('--neon-blue-lighter', this.value)">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
+          <span>Secondary Blue Text</span>
+          <input type="color" value="${getComputedStyle(document.documentElement).getPropertyValue('--neon-blue-lighter2').trim()}" onchange="updateColor('--neon-blue-lighter2', this.value)">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
+          <span>Soft Glow Color (RGBA)</span>
+          <input type="text" value="${getComputedStyle(document.documentElement).getPropertyValue('--neon-blue-soft').trim()}" onchange="updateColor('--neon-blue-soft', this.value)" style="width: 180px; background: #000; border: 1px solid #333; color: #fff; padding: 4px;">
+        </div>
+        <button onclick="resetColors()" style="background: #440000; border: 1px solid #ff0000; margin-top: 1rem;">Reset to Defaults</button>
+      </div>
+    </section>
+  `,
   home: `
     <section class="home-grid">
       <article class="panel hero-panel">
@@ -1670,6 +1771,7 @@ function setVideoBackground(videoUrl) {
   document.body.classList.add('video-bg');
 }
 
+applySavedColors();
 load("home");
 setVideoBackground('https://raw.githubusercontent.com/Neon64makoto/GN-Neon/main/Files/FlatlineLoop.mp4');
 initMusic();
