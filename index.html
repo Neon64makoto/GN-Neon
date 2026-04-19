@@ -1132,7 +1132,7 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
     }
   };
   document.addEventListener('mousemove', (e) => {
-    if (e.clientY < 200) { isNear = true; show(); } 
+    if (e.clientY < 10) { isNear = true; show(); } 
     else { isNear = false; if(!topbar.matches(':hover')) { clearTimeout(hideTimer); hideTimer = setTimeout(hide, 500); } }
   });
   topbar.addEventListener('mouseenter', show);
