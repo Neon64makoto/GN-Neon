@@ -716,10 +716,12 @@
     .tools-side-by-side pre { width: 100%; height: 200px; margin: 0; padding: 1rem; background: #0a0a0a; border: 1px solid var(--border); border-radius: 8px; overflow-y: auto; color: #7799ff; white-space: pre-wrap; word-wrap: break-word; }
     .cipher-buttons { display: flex; gap: 0.5rem; margin: 0 0 1rem 0; align-items: center; flex-wrap: nowrap; width: 100%; }
     .cipher-buttons button { margin: 0; padding: 0.5rem 0.75rem; font-size: 0.95rem; flex-shrink: 0; }
-    .graph-layout { display: flex; gap: 1.5rem; }
+    .graph-layout { display: flex; gap: 1.5rem; align-items: flex-start; }
     .graph-layout .graph-inputs { flex: 0 0 50%; }
-    .graph-layout .graph-outputs { flex: 0 0 50%; display: flex; flex-direction: column; }
-    #graphResults { margin-top: 0; }
+    .graph-layout .graph-outputs { flex: 0 0 50%; display: flex; flex-direction: column; gap: 1rem; }
+    .graph-layout .canvas-wrap { flex-shrink: 0; }
+    .graph-layout #grid { display: block; max-width: 100%; height: auto; }
+    #graphResults { margin-top: 0; padding: 1rem; background: #0a0a0a; border: 1px solid var(--border); border-radius: 8px; min-height: 50px; }
     .ide-layout { display: flex; gap: 1.5rem; height: 350px; }
     .ide-layout > div { flex: 1; display: flex; flex-direction: column; }
     #ideInput { margin: 0; flex: 1; }
@@ -954,7 +956,7 @@
   </main>
 
   <canvas id="visualizerCanvas"></canvas>
-  <div class="version-tag" id="vTag">v0.45</div>
+  <div class="version-tag" id="vTag">v0.46</div>
 
 <script>
 // ─── STATE ───────────────────────────────────────────────────────────────────
@@ -1164,7 +1166,7 @@ const pages = {
       </article>
 
       <aside class="panel patch-panel">
-        <div class="version-chip">Latest overhaul · v0.45</div>
+        <div class="version-chip">Latest overhaul · v0.46</div>
         <h3>Patch Notes</h3>
         <ul class="patch-list">
           <li>Renamed to <strong>GN-Neon</strong>.</li>
