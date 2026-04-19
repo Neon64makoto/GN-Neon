@@ -179,7 +179,7 @@
        UNIFIED DIAGONAL PANEL LAYOUT (Opera GX style)
        ═══════════════════════════════════════════════════════════ */
 
-    /* ─── LOGO CONNECTOR (diagonal angle piece) ─────────────────────────────── */
+    /* ─── LOGO CONNECTOR (square with protruding diagonal angles) ─────────────── */
     .logo-connector {
       position: fixed;
       top: 0;
@@ -188,15 +188,14 @@
       height: var(--panel-size);
       z-index: 120;
       background: rgba(17, 17, 17, 0.97);
-      border-right: 1px solid var(--border);
-      border-bottom: 1px solid var(--border);
+      border: 2px solid #0044ff;
       backdrop-filter: blur(10px);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 4px 4px 20px rgba(0, 6, 255, 0.35);
-      /* Diagonal cut at 45 degrees */
-      clip-path: polygon(0 0, 100% 0, 0 100%);
+      box-shadow: 0 0 20px rgba(0, 68, 255, 0.5), inset 0 0 15px rgba(0, 68, 255, 0.2);
+      /* Protruding angles outward */
+      clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
     }
 
     .logo-connector span {
@@ -214,7 +213,7 @@
       transform: translate(-50%, -50%);
     }
 
-    /* ─── LEFT PANEL (NAV) ─────────────────────────────────────────────────── */
+        /* ─── LEFT PANEL (NAV) ──────────────────────────────────────── */
     .left-panel {
       position: fixed;
       top: 0;
@@ -223,7 +222,7 @@
       height: 100vh;
       z-index: 110;
       background: rgba(17, 17, 17, 0.97);
-      border-right: 1px solid var(--border);
+      border-right: 2px solid #0044ff;
       backdrop-filter: blur(10px);
       padding-top: var(--panel-size);
       display: flex;
@@ -279,7 +278,7 @@
       box-shadow: 0 0 12px rgba(0, 68, 255, 0.4);
     }
 
-    /* ─── TOP PANEL (MUSIC) ─────────────────────────────────────────────────── */
+      /* ─── TOP PANEL (MUSIC) ──────────────────────────────────────── */
     .topbar {
       position: fixed;
       top: 0;
@@ -288,7 +287,7 @@
       height: var(--panel-size);
       z-index: 110;
       background: rgba(17, 17, 17, 0.97);
-      border-bottom: 1px solid var(--border);
+      border-bottom: 2px solid #0044ff;
       backdrop-filter: blur(10px);
       padding: 0.75rem 0 0.5rem;
       display: flex;
