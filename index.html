@@ -13,10 +13,10 @@
       --border-strong: #444;
       --text: #fff;
       --muted: #b3b3b3;
-      --neon-blue: #0044ff;
-      --neon-blue-soft: rgba(0, 68, 255, 0.15);
-      --neon-blue-lighter: #7799ff;
-      --neon-blue-lighter2: #aac0ff;
+      --neon-blue: #0000ff;
+      --neon-blue-soft: rgba(0, 50, 255, 0.30);
+      --neon-blue-lighter: #0040ff;
+      --neon-blue-lighter2: #0060ff;
       --shadow: 0 14px 32px rgba(0, 0, 0, 0.32);
       --panel-size: 140px;
     }
@@ -1319,6 +1319,7 @@ function toggleVisualizerMode() {
     main.classList.add('ui-hidden');
     top.classList.add('ui-hidden');
     left.classList.add('ui-hidden');
+    logo.classList.add('ui-hidden');
     tag.classList.add('ui-hidden');
     btn.innerText = "Exit Mode";
     document.addEventListener('keydown', exitVizOnEsc);
@@ -1326,6 +1327,7 @@ function toggleVisualizerMode() {
     main.classList.remove('ui-hidden');
     top.classList.remove('ui-hidden');
     left.classList.remove('ui-hidden');
+    logo.classList.remove('ui-hidden');
     tag.classList.remove('ui-hidden');
     btn.innerText = "Visualizer";
     top.classList.remove('hover-reveal');
