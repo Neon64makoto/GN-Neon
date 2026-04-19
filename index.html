@@ -1414,6 +1414,14 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
       const hex = value.substring(1);
       return [parseInt(hex.substring(0, 2), 16), parseInt(hex.substring(2, 4), 16), parseInt(hex.substring(4, 6), 16)];
     }
+    if (value.startsWith('hsl')) {
+      const temp = document.createElement('div');
+      temp.style.color = value;
+      document.body.appendChild(temp);
+      const rgb = getComputedStyle(temp).color.match(/\d+/g).map(Number);
+      document.body.removeChild(temp);
+      return rgb;
+    }
     return [0, 68, 255];
   }
 
