@@ -195,7 +195,6 @@
       justify-content: center;
       box-shadow: 0 0 20px rgba(0, 68, 255, 0.5), inset 0 0 15px rgba(0, 68, 255, 0.2);
       /* L-shaped: top-right and bottom-left quadrants visible */
-      clip-path: polygon(0 0, 100% 0, 100% 50%, 50% 50%, 50% 100%, 0 100%);
       opacity: 0;
       pointer-events: none;
       transition: opacity 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
@@ -240,7 +239,6 @@
       transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s;
       opacity: 0;
       pointer-events: none;
-      clip-path: polygon(0 50%, 100% 0, 100% 100%, 0 100%);
     }
 
     .left-panel.visible {
@@ -310,7 +308,6 @@
       transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s;
       opacity: 0;
       pointer-events: none;
-      clip-path: polygon(50% 0, 100% 0, 100% 100%, 0 100%);
     }
 
     .topbar.visible {
@@ -351,7 +348,49 @@
       align-items: center;
     }
 
-    /* ─── HOVER TRIGGER ZONES ─────────────────────────────────────────────── */
+    /* ─── DECORATIVE ANGLE OVERLAYS (for interlocking effect) ─────────────── */
+    .logo-angle-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: var(--panel-size);
+      height: var(--panel-size);
+      z-index: 121;
+      background: transparent;
+      pointer-events: none;
+      opacity: 0;
+      transition: opacity 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
+    }
+
+    .logo-angle-overlay.visible {
+      opacity: 1;
+    }
+
+    .logo-angle-overlay::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 var(--panel-size) var(--panel-size) 0;
+      border-color: transparent rgba(17, 17, 17, 0.97) transparent transparent;
+    }
+
+    .logo-angle-overlay::after {
+      content: '';
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 0 var(--panel-size) var(--panel-size);
+      border-color: transparent transparent rgba(17, 17, 17, 0.97) transparent;
+    }
+
+    /* ─── HOVER TRIGGER ZONES ────────────────────────────────────── */
     .trigger-zone-left {
       position: fixed;
       top: 0;
@@ -1051,6 +1090,9 @@
     <span>GN<br>NEON</span>
   </div>
 
+  <!-- Decorative angle overlay -->
+  <div class="logo-angle-overlay" id="logoAngleOverlay"></div>
+
   <!-- Left panel (nav) -->
   <div class="left-panel" id="leftPanel">
     <nav class="nav" aria-label="Primary">
@@ -1273,6 +1315,8 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
 (function() {
   const topbar = document.getElementById('topbar');
   const leftPanel = document.getElementById('leftPanel');
+  const logoConnector = document.getElementById('logoConnector');
+  const logoAngleOverlay = document.getElementById('logoAngleOverlay');
   const triggerLeft = document.querySelector('.trigger-zone-left');
   const triggerTop = document.querySelector('.trigger-zone-top');
   
@@ -1282,6 +1326,8 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
   const showBoth = () => { 
     topbar.classList.add('visible'); 
     leftPanel.classList.add('visible');
+    logoConnector.classList.add('visible');
+    logoAngleOverlay.classList.add('visible');
     if (isVisualizerMode) { 
       topbar.classList.add('hover-reveal');
       leftPanel.classList.add('hover-reveal');
@@ -1293,6 +1339,8 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
     if(!isNear) {
       topbar.classList.remove('visible'); 
       leftPanel.classList.remove('visible');
+      logoConnector.classList.remove('visible');
+      logoAngleOverlay.classList.remove('visible');
       if (isVisualizerMode) { 
         topbar.classList.remove('hover-reveal');
         leftPanel.classList.remove('hover-reveal');
