@@ -13,11 +13,11 @@
       --border-strong: #444;
       --text: #fff;
       --muted: #b3b3b3;
-      --neon-blue: #ff0000;
-      --neon-blue-soft: rgba(255, 68, , 0.14);
-      --neon-blue-lighter: #7799ff;
+      --neon-blue: #0044ff;
+      --neon-blue-soft: rgba(0, 68, 255, 0.14);
+      --neon-blue-lighter: #ff0000;
       --neon-blue-lighter2: #aac0ff;
-      --shadow: 0 14px 32px rgba(0, 0, 0, 0.32);
+      --shadow: 0 14px 32px rgba(255, 0, 0, 0.32);
       --panel-size: 140px;
     }
 
@@ -552,7 +552,7 @@
     }
 
     .panel {
-      background: linear-gradient(180deg, rgba(0, 0, 0, 1), rgba(0, 68, 255, 0.15));
+      background: linear-gradient(180deg, rgba(0, 0, 0, 1), var(--neon-blue-soft));
       border: 1px solid var(--border);
       border-radius: 14px;
       box-shadow: var(--shadow);
@@ -568,7 +568,7 @@
     }
 
     .games-panel {
-      background: linear-gradient(180deg, rgba(0, 0, 0, 1), rgba(0, 68, 255, 0.15));
+      background: linear-gradient(180deg, rgba(0, 0, 0, 1), var(--neon-blue-soft));
       border: 1px solid var(--border);
       border-radius: 14px;
       box-shadow: var(--shadow);
@@ -1336,6 +1336,15 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
   const resize = () => { canvas.width = window.innerWidth; canvas.height = window.innerHeight; };
   resize(); window.addEventListener('resize', resize);
 
+  function getRGBFromVariable(varName) {
+    const value = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+    if (value.startsWith('#')) {
+      const hex = value.substring(1);
+      return [parseInt(hex.substring(0, 2), 16), parseInt(hex.substring(2, 4), 16), parseInt(hex.substring(4, 6), 16)];
+    }
+    return [0, 68, 255];
+  }
+
   function draw() {
     requestAnimationFrame(draw);
     const W = canvas.width, H = canvas.height;
@@ -1347,6 +1356,7 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
     
     const barCount = 120, gap = 2, barW = (W - gap * (barCount - 1)) / barCount;
     const maxHeight = H * 0.45;
+    const [r, g, b] = getRGBFromVariable('--neon-blue');
     
     for (let i = 0; i < barCount; i++) {
       const rawVal = dataArray[i];
@@ -1357,16 +1367,16 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
       const x = i * (barW + gap);
       const y = H - barH;
       const opacity = 0.5 + (intensity * 0.5);
-      
-        ctx.fillStyle = `rgba(0, 68, 255, ${opacity})`;
+      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`;
       ctx.fillRect(x, y, barW, barH);
     }
   }
   
   function drawIdle(ctx, W, H) {
     const barCount = 120, gap = 2, barW = (W - gap * (barCount - 1)) / barCount;
+    const [r, g, b] = getRGBFromVariable('--neon-blue');
     for (let i = 0; i < barCount; i++) {
-      ctx.fillStyle = 'rgba(0, 68, 255, 0.2)';
+      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, 0.2)`;
       ctx.fillRect(i * (barW + gap), H - 2, barW, 2);
     }
   }
