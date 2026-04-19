@@ -181,25 +181,27 @@
 
     /* ─── LOGO CONNECTOR (with protruding triangles) ─────────────── */
     .logo-connector {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: var(--panel-size);
-      height: var(--panel-size);
-      z-index: 120;
-      background: rgba(17, 17, 17, 0.97);
-      border: 2px solid #0044ff;
-      backdrop-filter: blur(10px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 0 0 20px rgba(0, 68, 255, 0.5), inset 0 0 15px rgba(0, 68, 255, 0.2);
-      /* Protruding triangles: top-right and bottom-left */
-      clip-path: polygon(0 0, 100% 0, 100% 50%, 50% 50%, 50% 100%, 0 100%);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity 0.35s cubic-bezier(0.2, 0.8, 0.2, 1);
-    }
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: var(--panel-size);
+  height: var(--panel-size);
+  z-index: 120;
+
+  background: rgba(17, 17, 17, 0.97);
+  border: 2px solid #0044ff;
+
+  /* 🔥 DIAGONAL SHAPE */
+  clip-path: polygon(
+    0 0,
+    100% 0,
+    70% 100%,
+    0 100%
+  );
+
+  transform: translate(-100%, -100%) rotate(-10deg);
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 
     .logo-connector.visible {
       opacity: 1;
@@ -222,28 +224,29 @@
     }
 
         /* ─── LEFT PANEL (NAV) ──────────────────────────────────────── */
-    .left-panel {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: var(--panel-size);
-      height: 100vh;
-      z-index: 110;
-      background: rgba(17, 17, 17, 0.97);
-      border-right: 2px solid #0044ff;
-      border-top: 2px solid #0044ff;
-      backdrop-filter: blur(10px);
-      padding-top: var(--panel-size);
-      display: flex;
-      flex-direction: column;
-      gap: 0;
-      transform: translateX(calc(-1 * var(--panel-size)));
-      transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s;
-      opacity: 0;
-      pointer-events: none;
-      /* Recessed triangle to match logo */
-      clip-path: polygon(0 50%, 100% 0, 100% 100%, 0 100%);
-    }
+   .left-panel {
+  position: fixed;
+  top: var(--panel-size);
+  left: 0;
+  width: var(--panel-size);
+  height: calc(100vh - var(--panel-size));
+  z-index: 110;
+
+  background: rgba(17, 17, 17, 0.97);
+  border-right: 2px solid #0044ff;
+  backdrop-filter: blur(10px);
+
+  /* 🔥 THIS CREATES THE ANGLE */
+  clip-path: polygon(
+    0 0,
+    100% 60px,
+    100% 100%,
+    0 100%
+  );
+
+  transform: translateX(-100%);
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 
     .left-panel.visible {
       transform: translateX(0);
@@ -293,29 +296,28 @@
 
       /* ─── TOP PANEL (MUSIC) ──────────────────────────────────────── */
     .topbar {
-      position: fixed;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: var(--panel-size);
-      z-index: 110;
-      background: rgba(17, 17, 17, 0.97);
-      border-bottom: 2px solid #0044ff;
-      border-left: 2px solid #0044ff;
-      backdrop-filter: blur(10px);
-      padding: 0.75rem 0 0.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0;
-      padding-left: var(--panel-size);
-      transform: translateY(calc(-1 * var(--panel-size)));
-      transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s;
-      opacity: 0;
-      pointer-events: none;
-      /* Recessed triangle to match logo */
-      clip-path: polygon(50% 0, 100% 0, 100% 100%, 0 100%);
-    }
+  position: fixed;
+  top: 0;
+  left: var(--panel-size);
+  right: 0;
+  height: var(--panel-size);
+  z-index: 110;
+
+  background: rgba(17, 17, 17, 0.97);
+  border-bottom: 2px solid #0044ff;
+  backdrop-filter: blur(10px);
+
+  /* 🔥 ANGLED LEFT EDGE */
+  clip-path: polygon(
+    60px 0,
+    100% 0,
+    100% 100%,
+    0 100%
+  );
+
+  transform: translateY(-100%);
+  transition: transform 0.4s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
 
     .topbar.visible {
       transform: translateY(0);
