@@ -13,8 +13,8 @@
       --border-strong: #444;
       --text: #fff;
       --muted: #b3b3b3;
-      --accent: #0006ff;
-      --accent-soft: rgba(0, 0, 200, 0.14);
+      --neon-blue: #0044ff;
+      --neon-blue-soft: rgba(0, 68, 255, 0.14);
       --shadow: 0 14px 32px rgba(0, 0, 0, 0.32);
       --panel-size: 140px;
     }
@@ -155,9 +155,9 @@
     }
 
     button:hover {
-      background: #0044ff;
-      border-color: #1100ff;
-      box-shadow: 0 0 35px rgba(0, 0, 255, 0.95);
+      background: var(--neon-blue);
+      border-color: var(--neon-blue);
+      box-shadow: 0 0 35px var(--neon-blue);
       transform: translateY(-1px);
     }
 
@@ -188,12 +188,12 @@
       height: var(--panel-size);
       z-index: 120;
       background: rgba(17, 17, 17, 0.97);
-      border: 2px solid #0044ff;
+      border: 2px solid var(--neon-blue);
       backdrop-filter: blur(10px);
       display: flex;
       align-items: center;
       justify-content: center;
-      box-shadow: 0 0 20px rgba(0, 68, 255, 0.5), inset 0 0 15px rgba(0, 68, 255, 0.2);
+      box-shadow: 0 0 20px var(--neon-blue), inset 0 0 15px rgba(0, 68, 255, 0.2);
       transform: translate(-100%, -100%);
       transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s;
       opacity: 0;
@@ -207,9 +207,9 @@
     .logo-connector span {
       font-size: 0.55rem;
       font-weight: bold;
-      color: #0600ff;
+      color: var(--neon-blue);
       letter-spacing: 0.5px;
-      text-shadow: 0 0 10px rgba(0, 6, 255, 0.9);
+      text-shadow: 0 0 10px var(--neon-blue);
       text-align: center;
       line-height: 1.1;
       user-select: none;
@@ -228,8 +228,8 @@
       height: 100vh;
       z-index: 110;
       background: rgba(17, 17, 17, 0.97);
-      border-right: 2px solid #0044ff;
-      border-top: 2px solid #0044ff;
+      border-right: 2px solid var(--neon-blue);
+      border-top: 2px solid var(--neon-blue);
       backdrop-filter: blur(10px);
       padding-top: var(--panel-size);
       display: flex;
@@ -271,18 +271,18 @@
       font-size: 0.95rem;
       margin: 0;
       background: transparent;
-      border: 1px solid rgba(0, 0, 200, 0.3);
+      border: 1px solid rgba(0, 68, 255, 0.3);
       border-radius: 6px;
       color: #aac0ff;
       transition: all 0.15s;
     }
 
     .left-panel .nav button:hover {
-      background: rgba(0, 0, 255, 0.2);
-      border-color: #0044ff;
+      background: rgba(0, 68, 255, 0.2);
+      border-color: var(--neon-blue);
       color: #fff;
       transform: translateX(3px);
-      box-shadow: 0 0 12px rgba(0, 68, 255, 0.4);
+      box-shadow: 0 0 12px var(--neon-blue);
     }
 
       /* ─── TOP PANEL (MUSIC) ──────────────────────────────────────── */
@@ -294,8 +294,8 @@
       height: var(--panel-size);
       z-index: 110;
       background: rgba(17, 17, 17, 0.97);
-      border-bottom: 2px solid #0044ff;
-      border-left: 2px solid #0044ff;
+      border-bottom: 2px solid var(--neon-blue);
+      border-left: 2px solid var(--neon-blue);
       backdrop-filter: blur(10px);
       padding: 0.75rem 0 0.5rem;
       display: flex;
@@ -398,20 +398,20 @@
       -webkit-appearance: none;
       width: 14px;
       height: 14px;
-      background: #0044ff;
+      background: var(--neon-blue);
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(0, 68, 255, 0.8);
+      box-shadow: 0 0 10px var(--neon-blue);
       border: 1px solid #fff;
     }
 
     #volumeSlider::-moz-range-thumb {
       width: 14px;
       height: 14px;
-      background: #0044ff;
+      background: var(--neon-blue);
       border-radius: 50%;
       cursor: pointer;
-      box-shadow: 0 0 10px rgba(0, 68, 255, 0.8);
+      box-shadow: 0 0 10px var(--neon-blue);
       border: 1px solid #fff;
     }
 
@@ -424,7 +424,7 @@
       align-items: center;
       gap: 0.3rem;
       padding: 0.45rem 1rem 0.6rem;
-      border-top: 1px solid rgba(0, 0, 200, 0.25);
+      border-top: 1px solid rgba(0, 68, 255, 0.25);
       margin-top: 0.4rem;
     }
 
@@ -458,7 +458,7 @@
       padding: 0.35rem 0.65rem;
       font-size: 1rem;
       background: transparent;
-      border: 1px solid rgba(0, 200, 0, 0.45);
+      border: 1px solid rgba(68, 100, 255, 0.45);
       border-radius: 6px;
       color: #aac0ff;
       cursor: pointer;
@@ -467,15 +467,15 @@
     }
 
     .music-btn:hover {
-      background: rgba(0, 0, 255, 0.25);
+      background: rgba(0, 68, 255, 0.25);
       transform: translateY(-1px);
-      border-color: #0044ff;
+      border-color: var(--neon-blue);
       color: #fff;
     }
 
     .music-btn.active-loop {
-      background: rgba(0, 0, 255, 0.35);
-      border-color: #0044ff;
+      background: rgba(0, 68, 255, 0.35);
+      border-color: var(--neon-blue);
       color: #fff;
     }
 
@@ -500,7 +500,7 @@
       appearance: none;
       height: 4px;
       border-radius: 2px;
-      background: linear-gradient(to right, #0044ff 0%, #333 0%);
+      background: linear-gradient(to right, var(--neon-blue) 0%, #333 0%);
       outline: none;
       cursor: pointer;
       margin: 0;
@@ -514,7 +514,7 @@
       width: 12px;
       height: 12px;
       border-radius: 50%;
-      background: #0044ff;
+      background: var(--neon-blue);
       cursor: pointer;
     }
 
@@ -1053,7 +1053,7 @@
       <button onclick="load('games')">Games</button>
       <button onclick="load('creations')">Creations</button>
       <button onclick="load('about')">About</button>
-      <button onclick="toggleVisualizerMode()" id="vizModeBtn" style="border: 1px solid #0044ff; background: rgba(0,0,255,0.1);">Visualizer</button>
+      <button onclick="toggleVisualizerMode()" id="vizModeBtn" style="border: 1px solid var(--neon-blue); background: rgba(0,68,255,0.1);">Visualizer</button>
     </nav>
   </div>
 
@@ -1201,7 +1201,7 @@ function updateSeekBar() {
   if (!audio.duration) return;
   const pct = (audio.currentTime / audio.duration) * 100;
   bar.value = pct;
-  bar.style.background = `linear-gradient(to right, #0044ff ${pct}%, #333 ${pct}%)`;
+  bar.style.background = `linear-gradient(to right, var(--neon-blue) ${pct}%, #333 ${pct}%)`;
   document.getElementById('mcCurrent').textContent = fmtTime(audio.currentTime);
   document.getElementById('mcDuration').textContent = fmtTime(audio.duration);
 }
@@ -1356,7 +1356,7 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
       const y = H - barH;
       const opacity = 0.5 + (intensity * 0.5);
       
-      ctx.fillStyle = `rgba(0, 0, 255, ${opacity})`;
+        ctx.fillStyle = `rgba(0, 68, 255, ${opacity})`;
       ctx.fillRect(x, y, barW, barH);
     }
   }
@@ -1364,7 +1364,7 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
   function drawIdle(ctx, W, H) {
     const barCount = 120, gap = 2, barW = (W - gap * (barCount - 1)) / barCount;
     for (let i = 0; i < barCount; i++) {
-      ctx.fillStyle = 'rgba(0, 0, 255, 0.2)';
+      ctx.fillStyle = 'rgba(0, 68, 255, 0.2)';
       ctx.fillRect(i * (barW + gap), H - 2, barW, 2);
     }
   }
