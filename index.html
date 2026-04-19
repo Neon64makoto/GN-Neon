@@ -194,6 +194,14 @@
       align-items: center;
       justify-content: center;
       box-shadow: 0 0 20px rgba(0, 68, 255, 0.5), inset 0 0 15px rgba(0, 68, 255, 0.2);
+      transform: translate(-100%, -100%);
+      transition: transform 0.35s cubic-bezier(0.2, 0.8, 0.2, 1), opacity 0.35s;
+      opacity: 0;
+    }
+
+    .logo-connector.visible {
+      transform: translate(0, 0);
+      opacity: 1;
     }
 
     .logo-connector span {
@@ -450,7 +458,7 @@
       padding: 0.35rem 0.65rem;
       font-size: 1rem;
       background: transparent;
-      border: 1px solid rgba(0, 0, 200, 0.45);
+      border: 1px solid rgba(0, 200, 0, 0.45);
       border-radius: 6px;
       color: #aac0ff;
       cursor: pointer;
@@ -1259,6 +1267,7 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
 (function() {
   const topbar = document.getElementById('topbar');
   const leftPanel = document.getElementById('leftPanel');
+  const logoConnector = document.getElementById('logoConnector');
   const triggerLeft = document.querySelector('.trigger-zone-left');
   const triggerTop = document.querySelector('.trigger-zone-top');
   
@@ -1268,6 +1277,7 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
   const showBoth = () => { 
     topbar.classList.add('visible'); 
     leftPanel.classList.add('visible');
+    logoConnector.classList.add('visible');
     if (isVisualizerMode) { 
       topbar.classList.add('hover-reveal');
       leftPanel.classList.add('hover-reveal');
@@ -1279,6 +1289,7 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
     if(!isNear) {
       topbar.classList.remove('visible'); 
       leftPanel.classList.remove('visible');
+      logoConnector.classList.remove('visible');
       if (isVisualizerMode) { 
         topbar.classList.remove('hover-reveal');
         leftPanel.classList.remove('hover-reveal');
@@ -1293,13 +1304,14 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
   // Panel hover
   topbar.addEventListener('mouseenter', showBoth);
   leftPanel.addEventListener('mouseenter', showBoth);
+  logoConnector.addEventListener('mouseenter', showBoth);
   
   // Mouse move tracking
   document.addEventListener('mousemove', (e) => {
     if (e.clientX < 8 || e.clientY < 8) { isNear = true; showBoth(); } 
     else { 
       isNear = false; 
-      if(!topbar.matches(':hover') && !leftPanel.matches(':hover')) { 
+      if(!topbar.matches(':hover') && !leftPanel.matches(':hover') && !logoConnector.matches(':hover')) { 
         clearTimeout(hideTimer); 
         hideTimer = setTimeout(hideBoth, 500); 
       } 
@@ -1309,6 +1321,7 @@ function exitVizOnEsc(e) { if(e.key === 'Escape') toggleVisualizerMode(); }
   // Hide on leave
   topbar.addEventListener('mouseleave', () => { if(!isNear) hideTimer = setTimeout(hideBoth, 500); });
   leftPanel.addEventListener('mouseleave', () => { if(!isNear) hideTimer = setTimeout(hideBoth, 500); });
+  logoConnector.addEventListener('mouseleave', () => { if(!isNear) hideTimer = setTimeout(hideBoth, 500); });
   triggerLeft.addEventListener('mouseleave', () => { if(!isNear) hideTimer = setTimeout(hideBoth, 500); });
   triggerTop.addEventListener('mouseleave', () => { if(!isNear) hideTimer = setTimeout(hideBoth, 500); });
   
@@ -1621,8 +1634,9 @@ function showEmbed(url) {
 function showCreation(type) {
   const area = document.getElementById('creationArea'), creationsMenu = document.getElementById('creationsMenu');
   if (creationsMenu) creationsMenu.style.display = 'none';
-  area.innerHTML = `<button class="back-button" onclick="load('creations')">← Back to Creations</button><h3>${type.toUpperCase()}</h3><p>Gallery for ${type} coming soon!</p>`;
+  area.innerHTML = `<button class="back-button" onclick="load('creations')">← Back to Creations</button><h3>${type.toUpperCase()}</h3><div id="embedArea"></div>`;
 }
+
 function checkGuess() {
   const v = parseInt(document.getElementById('guessInput').value);
   const msg = document.getElementById('guessMsg');
