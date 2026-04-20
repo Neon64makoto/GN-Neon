@@ -1429,7 +1429,7 @@ document.addEventListener('keydown', (e) => {
       showBoth(); 
       // Force hide after 5 seconds even if mouse is moving near edge
       clearTimeout(hideTimer);
-      hideTimer = setTimeout(() => { isNear = false; hideBoth(); }, 500);
+      hideTimer = setTimeout(() => { isNear = false; hideBoth(); }, 5000);
     } 
     else { 
       isNear = false; 
