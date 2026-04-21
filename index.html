@@ -371,6 +371,22 @@
       align-items: center;
     }
 
+    /* Digital Clock Style */
+    #digitalClock {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 1.5rem;
+      font-weight: bold;
+      color: var(--neon-blue);
+      text-shadow: 0 0 10px var(--neon-blue);
+      padding: 0.5rem 1rem;
+      background: rgba(0, 0, 0, 0.3);
+      border: 1px solid var(--neon-blue-soft);
+      border-radius: 8px;
+      margin-left: 1rem;
+      min-width: 120px;
+      text-align: center;
+    }
+
     /* ─── HOVER TRIGGER ZONES ─────────────────────────────────────────────── */
     .trigger-zone-left {
       position: fixed;
@@ -685,8 +701,7 @@
     .patch-list {
       margin: 1rem 0 0;
       padding-left: 1.5rem;
-      list-style: disc;
-      color: var(--muted);
+      line-height: 1.65;
       font-size: 0.95rem;
     }
 
@@ -1095,7 +1110,7 @@
       </div>
       <div class="music-btn-row">
         <button class="music-btn" onclick="musicPrev()" title="Previous">&#9664;&#9664;</button>
-        <button class="music-btn" id="mcPlayPause" onclick="musicPlayPause()" title="Play/Pause">▮▮</button>
+        <button class="music-btn" id="mcPlayPause" onclick="musicPlayPause()" title="Play/Pause">&#9646;&#9646;</button>
         <button class="music-btn" onclick="musicNext()" title="Next">&#9654;&#9654;</button>
         <button class="music-btn" id="mcLoop" onclick="musicToggleLoop()" title="Loop">&#8635;</button>
       </div>
@@ -1109,6 +1124,7 @@
       <input type="number" id="volumeInput" min="0" max="100" value="50" oninput="setVolumeFromInput(this.value)">
       <input type="range" id="volumeSlider" min="0" max="100" value="50" oninput="setVolume(this.value)">
       <button id="muteBtn" onclick="toggleMute()">Mute</button>
+      <div id="digitalClock">00:00:00</div>
     </div>
   </div>
 
@@ -1128,6 +1144,7 @@ let currentTrack = 0;
 let isLooping = false;
 let seekDragging = false;
 let isVisualizerMode = false;
+let keepClockInViz = false;
 
 const DEFAULT_COLORS = {
   '--neon-blue': '#0000ff',
@@ -1158,6 +1175,17 @@ function updateRainbow() {
   requestAnimationFrame(updateRainbow);
 }
 updateRainbow();
+
+// ─── CLOCK LOGIC ─────────────────────────────────────────────────────────────
+function updateClock() {
+  const now = new Date();
+  const h = String(now.getHours()).padStart(2, '0');
+  const m = String(now.getMinutes()).padStart(2, '0');
+  const s = String(now.getSeconds()).padStart(2, '0');
+  document.getElementById('digitalClock').innerText = `${h}:${m}:${s}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
 
 // ─── PLAYLIST ────────────────────────────────────────────────────────────────
 const playlist = [
@@ -1289,7 +1317,7 @@ function updateTrackDisplay() {
   const meta = trackMeta[currentTrack];
   document.getElementById('mcTitle').innerText = meta.title;
   document.getElementById('mcArtist').innerText = meta.artist;
-  document.getElementById('mcPlayPause').innerText = '▮▮';
+  document.getElementById('mcPlayPause').innerText = document.getElementById('bgMusic').paused ? '▶' : '▮▮';
   localStorage.setItem('gn_neon_track', currentTrack);
 }
 
@@ -1343,6 +1371,7 @@ function toggleVisualizerMode() {
   const logo = document.getElementById('logoConnector');
   const tag = document.getElementById('vTag');
   const btn = document.getElementById('vizModeBtn');
+  const clock = document.getElementById('digitalClock');
 
   if (isVisualizerMode) {
     main.classList.add('ui-hidden');
@@ -1351,6 +1380,12 @@ function toggleVisualizerMode() {
     logo.classList.add('ui-hidden');
     tag.classList.add('ui-hidden');
     btn.innerText = "Exit Mode";
+    if (keepClockInViz) {
+      clock.style.position = 'fixed';
+      clock.style.top = '1.5rem';
+      clock.style.right = '1.5rem';
+      clock.style.zIndex = '1000';
+    }
     document.addEventListener('keydown', exitVizOnEsc);
   } else {
     main.classList.remove('ui-hidden');
@@ -1361,6 +1396,10 @@ function toggleVisualizerMode() {
     btn.innerText = "Visualizer";
     top.classList.remove('hover-reveal');
     left.classList.remove('hover-reveal');
+    clock.style.position = '';
+    clock.style.top = '';
+    clock.style.right = '';
+    clock.style.zIndex = '';
     document.removeEventListener('keydown', exitVizOnEsc);
   }
 }
@@ -1488,13 +1527,25 @@ document.addEventListener('keydown', (e) => {
     analyser.getByteFrequencyData(data);
     const barCount = 80, gap = 4, barW = (W - gap * (barCount - 1)) / barCount;
     const [r, g, b] = getRGBFromVariable('--neon-blue');
+    const isRainbow = rainbowStates['--neon-blue'].active;
+    const time = Date.now() / 1000;
+    
     for (let i = 0; i < barCount; i++) {
       const val = data[i * 2] || 0;
       const h = (val / 255) * (H * 0.4);
       const opacity = 0.3 + (val / 255) * 0.7;
-      ctx.fillStyle = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+      
+      let color;
+      if (isRainbow) {
+        const hue = (time * rainbowStates['--neon-blue'].speed * 10 + (i * 2)) % 360;
+        color = `hsla(${hue}, 100%, 50%, ${opacity})`;
+      } else {
+        color = `rgba(${r}, ${g}, ${b}, ${opacity})`;
+      }
+      
+      ctx.fillStyle = color;
       ctx.fillRect(i * (barW + gap), H - h, barW, h);
-      ctx.shadowBlur = 15; ctx.shadowColor = `rgba(${r}, ${g}, ${b}, 0.8)`;
+      ctx.shadowBlur = 15; ctx.shadowColor = isRainbow ? color : `rgba(${r}, ${g}, ${b}, 0.8)`;
     }
     ctx.shadowBlur = 0;
   }
@@ -1523,6 +1574,10 @@ function applySavedColors() {
   if (savedRainbow) {
     rainbowStates = JSON.parse(savedRainbow);
   }
+  const savedClockSetting = localStorage.getItem('gn_neon_keep_clock');
+  if (savedClockSetting !== null) {
+    keepClockInViz = savedClockSetting === 'true';
+  }
 }
 
 function updateColor(key, val) {
@@ -1550,6 +1605,12 @@ function saveRainbow() {
   localStorage.setItem('gn_neon_rainbow', JSON.stringify(rainbowStates));
 }
 
+function toggleKeepClock() {
+  keepClockInViz = !keepClockInViz;
+  localStorage.setItem('gn_neon_keep_clock', keepClockInViz);
+  load('settings');
+}
+
 function resetColors() {
   for (const [key, val] of Object.entries(DEFAULT_COLORS)) {
     document.documentElement.style.setProperty(key, val);
@@ -1565,6 +1626,12 @@ const pages = {
     <section class="panel">
       <h2>Settings</h2>
       <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 1rem;">
+        <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
+          <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span>KEEP CLOCK IN VISUALIZER MODE</span>
+            <button onclick="toggleKeepClock()" style="margin:0; padding: 0.3rem 0.6rem; font-size: 0.8rem; background: ${keepClockInViz ? 'var(--neon-blue)' : '#333'}">${keepClockInViz ? 'Enabled' : 'Disabled'}</button>
+          </div>
+        </div>
         ${Object.entries(rainbowStates).map(([key, state]) => `
           <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
@@ -1610,8 +1677,6 @@ const pages = {
         <div class="version-chip">Latest overhaul · v0.53</div>
         <h3>Patch Notes</h3>
         <ul class="patch-list">
-          <li>Fixed play button initial state bug.</li>
-          <li>Added <strong>Block Blast</strong> game to the games section.</li>
           <li>Renamed to <strong>GN-Neon</strong>.</li>
           <li>New <strong>Tools</strong> section with IDE, Canvas, and AI Chatbot.</li>
           <li>Added <strong>Creations</strong> section.</li>
@@ -1754,10 +1819,10 @@ function drawGraph() {
   let existing = document.getElementById("graphResults"); if (!existing) { const div = document.createElement("div"); div.id = "graphResults"; canvas.parentElement.appendChild(div); existing = div; } existing.innerHTML = resultsHTML;
 }
 
-const games = ["https://turbowarp.org/10128407/embed?addons=pause,fullscreen", "https://turbowarp.org/1143765424/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/1075310827/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/941803602/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/973637218/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/883776962/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/898492644/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/916303075/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/978483855/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/959847748/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/1109852074/embed?addons=stuck,pause,fullscreen,fps=60&hqpen"];
-const titles = ["Paper Minecraft (Not Made By Me)", "Sisyphean Escalator", "Gambling but Mid", "Laser Dodge", "Goober Dodger", "Neon's Hostile Road", "Mid Cookie Clicker", "Asteroid Assault", "Reel 'Em In", "Cats Hate Rats", "Block Blast (Not Made By Me)"];
-const controls = [`Modding Guide: ▶️ https://youtu.be/PexNsUvqD5w\n[1 to 9] - Select Item    [Click] - Place or Mine\n[WASD] - Move / Jump  [E] - Open/Close Inventory\n[E+hover] - Open / Close Chest, Crafting Table, Door\n[Space] - Drop single tile from a stack while dragging.\n[F] - Eat food       [N] - Label a sign or chest\n[Q] - Drop item      [P] - Pause / Unpause\n[T] - Talk / Command    [O] - Save your game\n[M] - Music / Sounds   [Shift] - Sprint`, `Type the letters shown fast enough or fall.\n\nNot case sensitive.`, `::At BlackJack::\nUse arrow keys to bet:\n\nLeft and Right set the bet to 0 and max\n\nUp and down will change the bet by 10, or if holding "." will change it by 500\n1\nEnter to place bet, and after will be the hit button.\n\nSpace to stand.\n\n::At Slots::\nS to Spin\n\nSame betting controls.`, `Use the mouse to dodge the lasers that get faster with time!\n\nPress the left mouse button to become invincible for three seconds with a 10 second cool down so use it wisely!`, `Use the mouse to dodge the goobers, and don't stay in the border too long.\n\nThat's really about it.`, `ASD to move.\nW for a 3-second long power-up of invincibility.\nSpace to Start/Restart on the game-over screen.\n\n1 and 2 control the arcade scan filter.\n3 and 4 control the arcade cabinet overlay.\n5 and 6 control the arcade music (on/off)\n\n(60 fps Is highly recommended)`, `It's Cookie Clicker, but worse.\n\nUse your mouse.`, `Left mouse button to fire a weak auxiliary laser that overheats quickly.\n\nSpace for Main powerful laser.\n\nW for a backup shield that lasts 10 seconds, but has limited uses.\n\nUse your mouse to aim the laser.`, `Use Left Mouse Button to fire the harpoon and try to get the fish, and buy upgrades.\n \nBeware of the explosive mine, it takes $50 dollars to repair the harpoon and the explosion might scare a few good fish away.\n\n\nThis is still a work in progress and I plan on adding more things like power ups, multipliers, and maybe a high score system.\n\nF to show debug menu \nG to hide debug menu`, `goober.\n\nUse mouse 1 to hit the rats.\nuse F to turn off the yarn.\nUse G to turn them back on.\n`, `Click and drag blocks to match 3 or more of the same color.\n\nClear the board to advance to the next level.\n\nUse strategy to plan your moves!`];
-const notes = [`*** Credits ***\nAll the graphics are taken from the Minecraft wiki page and have not been created by me. I have rescaled them and broken them up to make the game work, but that is it at present.\n\nORIGNAL PROJECT MADE BY GRIFFPATCH ON SCRATCH, NOT ME:\n\nCheck him out he does great stuf, https://scratch.mit.edu/users/griffpatch/`, `The game is based on this video by the way:\n\nhttps://youtu.be/2Gby1XQ4Z2M?feature=shared`, `Don't gamble in real life, also this technically is not correct, and if you do it quick enough you can easily break most of this.\n\nThe special codes are:\n\nL E O\n\nN F S M W\n`, `Not much to add, I could have done a better job with the randomization of everything, but I am not gonna be working on this any further.`, `<b>!!!VOLUME WARNING!!!</b>\n\nI made this game to be difficult and stressful on purpose.\n\nIf you don't like loud noises or flashing lights, I would recommend not playing this game.`, `This is a game I made in a day, so don't expect too much.\n\nAlso, the hitbox for the asteroids is a bit wonky.`, `This game is unfinished and buggy.\n\nI am not going to work on it anymore.`, `I made this game as a joke.\n\nIt's not very good.`, `This game is still in development.\n\nI plan on adding more features soon.`, `This game is a work in progress.\n\nI plan on adding more content soon.`, `Block Blast is a puzzle game where you match blocks.\n\nIt's not made by me, but it's a fun game to play!`];
+const games = ["https://turbowarp.org/1109852074/embed?addons=stuck,pause,fullscreen,fps=60&hqpen", "https://turbowarp.org/10128407/embed?addons=pause,fullscreen", "https://turbowarp.org/1143765424/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/1075310827/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/941803602/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/973637218/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/883776962/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/898492644/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/916303075/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/978483855/embed?addons=pause,fullscreen&fps=60", "https://turbowarp.org/959847748/embed?addons=pause,fullscreen&fps=60"];
+const titles = ["Block Blast (Not Made By Me)", "Paper Minecraft (Not Made By Me)", "Sisyphean Escalator", "Gambling but Mid", "Laser Dodge", "Goober Dodger", "Neon's Hostile Road", "Mid Cookie Clicker", "Asteroid Assault", "Reel 'Em In", "Cats Hate Rats"];
+const controls = [`Click and drag blocks to match 3 or more of the same color.\n\nClear the board to advance to the next level.\n\nUse strategy to plan your moves!`, `Modding Guide: ▶️ https://youtu.be/PexNsUvqD5w\n[1 to 9] - Select Item    [Click] - Place or Mine\n[WASD] - Move / Jump  [E] - Open/Close Inventory\n[E+hover] - Open / Close Chest, Crafting Table, Door\n[Space] - Drop single tile from a stack while dragging.\n[F] - Eat food       [N] - Label a sign or chest\n[Q] - Drop item      [P] - Pause / Unpause\n[T] - Talk / Command    [O] - Save your game\n[M] - Music / Sounds   [Shift] - Sprint`, `Type the letters shown fast enough or fall.\n\nNot case sensitive.`, `::At BlackJack::\nUse arrow keys to bet:\n\nLeft and Right set the bet to 0 and max\n\nUp and down will change the bet by 10, or if holding "." will change it by 500\n1\nEnter to place bet, and after will be the hit button.\n\nSpace to stand.\n\n::At Slots::\nS to Spin\n\nSame betting controls.`, `Use the mouse to dodge the lasers that get faster with time!\n\nPress the left mouse button to become invincible for three seconds with a 10 second cool down so use it wisely!`, `Use the mouse to dodge the goobers, and don't stay in the border too long.\n\nThat's really about it.`, `ASD to move.\nW for a 3-second long power-up of invincibility.\nSpace to Start/Restart on the game-over screen.\n\n1 and 2 control the arcade scan filter.\n3 and 4 control the arcade cabinet overlay.\n5 and 6 control the arcade music (on/off)\n\n(60 fps Is highly recommended)`, `It's Cookie Clicker, but worse.\n\nUse your mouse.`, `Left mouse button to fire a weak auxiliary laser that overheats quickly.\n\nSpace for Main powerful laser.\n\nW for a backup shield that lasts 10 seconds, but has limited uses.\n\nUse your mouse to aim the laser.`, `Use Left Mouse Button to fire the harpoon and try to get the fish, and buy upgrades.\n \nBeware of the explosive mine, it takes $50 dollars to repair the harpoon and the explosion might scare a few good fish away.\n\n\nThis is still a work in progress and I plan on adding more things like power ups, multipliers, and maybe a high score system.\n\nF to show debug menu \nG to hide debug menu`, `goober.\n\nUse mouse 1 to hit the rats.\nuse F to turn off the yarn.\nUse G to turn them back on.\n`];
+const notes = [`Block Blast is a puzzle game where you match blocks.\n\nIt's not made by me, but it's a fun game to play!`, `*** Credits ***\nAll the graphics are taken from the Minecraft wiki page and have not been created by me. I have rescaled them and broken them up to make the game work, but that is it at present.\n\nORIGNAL PROJECT MADE BY GRIFFPATCH ON SCRATCH, NOT ME:\n\nCheck him out he does great stuf, https://scratch.mit.edu/users/griffpatch/`, `The game is based on this video by the way:\n\nhttps://youtu.be/2Gby1XQ4Z2M?feature=shared`, `Don't gamble in real life, also this technically is not correct, and if you do it quick enough you can easily break most of this.\n\nThe special codes are:\n\nL E O\n\nN F S M W\n`, `Not much to add, I could have done a better job with the randomization of everything, but I am not gonna be working on this any further.`, `<b>!!!VOLUME WARNING!!!</b>\n\nI made this game to be difficult and stressful on purpose.\n\nIf you don't like loud noises or flashing lights, I would recommend not playing this game.`, `This is a game I made in a day, so don't expect too much.\n\nAlso, the hitbox for the asteroids is a bit wonky.`, `This game is unfinished and buggy.\n\nI am not going to work on it anymore.`, `I made this game as a joke.\n\nIt's not very good.`, `This game is still in development.\n\nI plan on adding more features soon.`, `This game is a work in progress.\n\nI plan on adding more content soon.`];
 
 function showScratchGames() {
   const content = document.getElementById('gamesContent'), gamesMenu = document.querySelector('.games-menu'); if (gamesMenu) gamesMenu.style.display = 'none';
