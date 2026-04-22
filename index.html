@@ -1720,7 +1720,6 @@ function updateRainbowSpeed(key, speed) {
 function saveRainbow() {
   localStorage.setItem('gn_neon_rainbow', JSON.stringify(rainbowStates));
 }
-
 function toggleKeepClock() {
   keepClockInViz = !keepClockInViz;
   localStorage.setItem('gn_neon_keep_clock', keepClockInViz);
@@ -1805,7 +1804,7 @@ const pages = {
         ${Object.entries(rainbowStates).map(([key, state]) => `
           <div style="background: rgba(255,255,255,0.05); padding: 1rem; border-radius: 8px;">
             <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 0.5rem;">
-              <span>${key.replace('--neon-', '').replace('-', ' ').toUpperCase()}</span>
+              <span>${key.replace('--', '').replace('-', ' ').toUpperCase()}</span>
               <div style="display: flex; gap: 0.5rem; align-items: center;">
                 ${key === '--panel-color' ? 
                   `<input type="text" value="${getComputedStyle(document.documentElement).getPropertyValue(key).trim()}" onchange="updateColor('${key}', this.value)" style="width: 120px; background: #000; border: 1px solid #333; color: #fff; padding: 4px; font-size: 0.8rem;">` :
