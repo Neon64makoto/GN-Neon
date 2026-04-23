@@ -1995,6 +1995,27 @@ const pages = {
   `
 };
 
+function getColorBrightness(hexColor) {
+  const hex = hexColor.replace('#', '');
+  const r = parseInt(hex.slice(0, 2), 16);
+  const g = parseInt(hex.slice(2, 4), 16);
+  const b = parseInt(hex.slice(4, 6), 16);
+  return (r * 299 + g * 587 + b * 114) / 1000;
+}
+
+function updateNavButtonTextColor() {
+  const mainColorValue = getComputedStyle(document.documentElement).getPropertyValue('--main-color').trim();
+  const brightness = getColorBrightness(mainColorValue);
+  const navButtons = document.querySelectorAll('.left-panel .nav button');
+  navButtons.forEach(btn => {
+    if (btn.style.background === 'var(--main-color)' || btn.style.background.includes('rgb')) {
+      btn.style.color = brightness > 128 ? '#000' : '#fff';
+    }
+  });
+}
+
+setInterval(updateNavButtonTextColor, 1000);
+
 function load(page) {
   if (isVisualizerMode) {
     toggleVisualizerMode();
@@ -2022,7 +2043,9 @@ function load(page) {
   const buttonIndex = pageButtonMap[page];
   if (buttonIndex !== undefined && navButtons[buttonIndex]) {
     navButtons[buttonIndex].style.background = 'var(--main-color)';
-    navButtons[buttonIndex].style.color = '#fff';
+    const mainColorValue = getComputedStyle(document.documentElement).getPropertyValue('--main-color').trim();
+    const brightness = getColorBrightness(mainColorValue);
+    navButtons[buttonIndex].style.color = brightness > 128 ? '#000' : '#fff';
     navButtons[buttonIndex].style.borderColor = 'var(--main-color)';
   }
   if (page === 'games') {
