@@ -1236,7 +1236,7 @@ function applySongColor(trackIndex) {
 
 function toggleSongColor() {
   songColorEnabled = !songColorEnabled;
-  localStorage.setItem('gn_neon_song_color', songColorEnabled);
+  localStorage.setItem('gn_neon_song_color', songColorEnabled.toString());
   if (songColorEnabled) {
     applySongColor(currentTrack);
   } else {
