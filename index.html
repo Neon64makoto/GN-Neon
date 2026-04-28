@@ -657,7 +657,8 @@
       align-items: stretch;
     }
 
-    .games-panel {
+    .games-panel,
+    .web-game-panel {
       background: linear-gradient(180deg, rgba(0, 0, 0, 1), var(--panel-color));
       border: 1px solid var(--border);
       border-radius: 14px;
@@ -2066,7 +2067,7 @@ const pages = {
       <h2>Games</h2>
       <div class="games-menu" id="gamesMenu">
         <button onclick="showScratchGames()">Scratch Games</button>
-        <button class="under-construction"><span>Normal Games</span></button>
+        <button onclick="showWebGames()">Normal Games (WIP)</button>
         <button class="under-construction"><span>Emulators</span></button>
         <button class="under-construction"><span>Number Guessing Game</span></button>
       </div>
@@ -2241,6 +2242,12 @@ const controls = [`Click and drag blocks to match 3 or more of the same color.\n
 const notes = [`Block Blast is a puzzle game where you match blocks.\n\nIt's not made by me, but it's a fun game to play!`, `*** Credits ***\nAll the graphics are taken from the Minecraft wiki page and have not been created by me. I have rescaled them and broken them up to make the game work, but that is it at present.\n\nORIGNAL PROJECT MADE BY GRIFFPATCH ON SCRATCH, NOT ME:\n\nCheck him out he does great stuf, https://scratch.mit.edu/users/griffpatch/`, `The game is based on this video by the way:\n\nhttps://youtu.be/2Gby1XQ4Z2M?feature=shared`, `Don't gamble in real life, also this technically is not correct, and if you do it quick enough you can easily break most of this.\n\nThe special codes are:\n\nL E O\n\nN F S M W\n`, `Not much to add, I could have done a better job with the randomization of everything, but I am not gonna be working on this any further.`, `<b>!!!VOLUME WARNING!!!</b>\n\nI made this game to be difficult and stressful on purpose.\n\nIf you don't like loud noises or flashing lights, I would recommend not playing this game.`, `This is a game I made in a day, so don't expect too much.\n\nAlso, the hitbox for the asteroids is a bit wonky.`, `This game is unfinished and buggy.\n\nI am not going to work on it anymore.`, `I made this game as a joke.\n\nIt's not very good.`, `This game is still in development.\n\nI plan on adding more features soon.`, `This game is a work in progress.\n\nI plan on adding more content soon.`];
 
 function showScratchGames() {
+  const content = document.getElementById('gamesContent'), gamesMenu = document.querySelector('.games-menu'); if (gamesMenu) gamesMenu.style.display = 'none';
+  content.innerHTML = `<button class="back-button" onclick="load('games')">← Back to Games Menu</button><div class="games-layout"><div class="sideBox"><h3>Controls</h3><div id="gameControls"></div></div><div class="centerBox"><iframe id="scratchFrame" allowfullscreen title="GN-Neon Scratch game viewer"></iframe><h3 id="gameTitle"></h3><div class="button-row" style="justify-content:center; margin-top:1rem;"><button onclick="prevGame()">◀</button><button onclick="nextGame()">▶</button></div></div><div class="sideBox"><h3>Notes / Credits</h3><div id="gameNotes"></div></div></div>`;
+  currentIndex = 0; updateGame();
+}
+
+function showWebGames() {
   const content = document.getElementById('gamesContent'), gamesMenu = document.querySelector('.games-menu'); if (gamesMenu) gamesMenu.style.display = 'none';
   content.innerHTML = `<button class="back-button" onclick="load('games')">← Back to Games Menu</button><div class="games-layout"><div class="sideBox"><h3>Controls</h3><div id="gameControls"></div></div><div class="centerBox"><iframe id="scratchFrame" allowfullscreen title="GN-Neon Scratch game viewer"></iframe><h3 id="gameTitle"></h3><div class="button-row" style="justify-content:center; margin-top:1rem;"><button onclick="prevGame()">◀</button><button onclick="nextGame()">▶</button></div></div><div class="sideBox"><h3>Notes / Credits</h3><div id="gameNotes"></div></div></div>`;
   currentIndex = 0; updateGame();
